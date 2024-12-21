@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Api", "FinTracker.Api\FinTracker.Api.csproj", "{A402CA37-4B81-44B8-BBE4-3FDA9D43F6F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Dal", "FinTracker.Dal\FinTracker.Dal.csproj", "{B9329FF9-81F9-4C01-A4F0-A5752853F5E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Logic", "FinTracker.Logic\FinTracker.Logic.csproj", "{D440EABF-4DC8-434C-8BE3-E358A9E58940}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{A402CA37-4B81-44B8-BBE4-3FDA9D43F6F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A402CA37-4B81-44B8-BBE4-3FDA9D43F6F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A402CA37-4B81-44B8-BBE4-3FDA9D43F6F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9329FF9-81F9-4C01-A4F0-A5752853F5E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9329FF9-81F9-4C01-A4F0-A5752853F5E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9329FF9-81F9-4C01-A4F0-A5752853F5E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9329FF9-81F9-4C01-A4F0-A5752853F5E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D440EABF-4DC8-434C-8BE3-E358A9E58940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D440EABF-4DC8-434C-8BE3-E358A9E58940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D440EABF-4DC8-434C-8BE3-E358A9E58940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D440EABF-4DC8-434C-8BE3-E358A9E58940}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
