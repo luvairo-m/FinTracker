@@ -19,27 +19,27 @@ public record struct UpdatePaymentRequest : IValidatableObject
     public required Guid BillId { get; init; }
 
     [Required]
-    public required int Amount { get; init; }
+    public required decimal Amount { get; init; }
 
     [Required]
     public required FinancialOperation Operation { get; init; }
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        var validationResults = Array.Empty<ValidationResult>();
+        var validationResults = new List<ValidationResult>(2);
         
         if (Operation == FinancialOperation.Expense && Amount > 0)
         {
-            validationResults[0] = new ValidationResult(
+            validationResults.Add(new ValidationResult(
                 "Сумма не может быть положительной для операции расхода", 
-                [nameof(Amount)]);
+                [nameof(Amount)]));
         }
 
         if (Operation == FinancialOperation.Income && Amount < 0)
         {
-            validationResults[0] = new ValidationResult(
+            validationResults.Add(new ValidationResult(
                 "Сумма не может быть отрицательной для операции дохода", 
-                [nameof(Amount)]);
+                [nameof(Amount)]));
         }
 
         return validationResults;

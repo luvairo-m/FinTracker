@@ -4,23 +4,28 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Category.Dto.Requests;
 using FinTracker.Api.Controllers.Category.Dto.Responses;
-using FinTracker.Logic.Managers.Category.Interfaces;
-using FinTracker.Logic.Models.Category.Params;
+using FinTracker.Logic.Handlers.Category.CreateCategory;
+using FinTracker.Logic.Handlers.Category.DeleteCategory;
+using FinTracker.Logic.Handlers.Category.GetCategories;
+using FinTracker.Logic.Handlers.Category.GetCategory;
+using FinTracker.Logic.Handlers.Category.UpdateCategory;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.Api.Controllers.Category;
 
 [ApiController]
-[Route("api/categories")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/categories")]
 public class CategoryController : ControllerBase
 {
-    private readonly ICategoryManager _categoryManager;
-    private readonly IMapper _mapper;
+    private readonly IMapper mapper;
+    private readonly IMediator mediator;
 
-    public CategoryController(ICategoryManager categoryManager, IMapper mapper)
+    public CategoryController(IMapper mapper, IMediator mediator)
     {
-        _categoryManager = categoryManager;
-        _mapper = mapper;
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
     
     /// <summary>
@@ -30,11 +35,9 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
     {
-        var createCategoryParam = _mapper.Map<CreateCategoryParam>(createCategoryRequest);
+        var createdCategory = await mediator.Send(new CreateCategoryCommand(title: createCategoryRequest.Title));
         
-        var createCategoryResult = await _categoryManager.CreateCategory(createCategoryParam);
-        
-        var response = _mapper.Map<CreateCategoryResponse>(createCategoryResult);
+        var response = mapper.Map<CreateCategoryResponse>(createdCategory);
         
         return Ok(response);
     }
@@ -46,10 +49,10 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<GetCategoryResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetCategory(Guid categoryId)
     {
-        var getCategoryResult = await _categoryManager.GetCategory(categoryId);
+        var category = await mediator.Send(new GetCategoryCommand(categoryId: categoryId));
         
-        var response = _mapper.Map<GetCategoryResponse>(getCategoryResult);
-        
+        var response = mapper.Map<GetCategoryResponse>(category);
+     
         return Ok(response);
     }
 
@@ -60,10 +63,10 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<GetCategoriesResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetCategories()
     {
-        var getCategoriesResult = await _categoryManager.GetCategories();
+        var categories = await mediator.Send(new GetCategoriesCommand());
         
-        var response = _mapper.Map<GetCategoriesResponse>(getCategoriesResult);
-
+        var response = mapper.Map<GetCategoriesResponse>(categories);
+        
         return Ok(response);
     }
 
@@ -74,9 +77,7 @@ public class CategoryController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
-        var updateCategoryParam = _mapper.Map<UpdateCategoryParam>((categoryId, updateCategoryRequest));
-        
-        await _categoryManager.UpdateCategory(updateCategoryParam);
+        await mediator.Send(new UpdateCategoryCommand(categoryId: categoryId, title: updateCategoryRequest.Title));
         
         return Ok();
     }
@@ -88,8 +89,8 @@ public class CategoryController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> DeleteCategory(Guid categoryId)
     {
-        await _categoryManager.DeleteCategory(categoryId);
-
+        await mediator.Send(new DeleteCategoryCommand(categoryId: categoryId));
+        
         return Ok();
     }
 }

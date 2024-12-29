@@ -4,23 +4,28 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Bill.Dto.Requests;
 using FinTracker.Api.Controllers.Bill.Dto.Responses;
-using FinTracker.Logic.Managers.Bill.Interfaces;
-using FinTracker.Logic.Models.Bill.Params;
+using FinTracker.Logic.Handlers.Bill.CreateBill;
+using FinTracker.Logic.Handlers.Bill.DeleteBill;
+using FinTracker.Logic.Handlers.Bill.GetBill;
+using FinTracker.Logic.Handlers.Bill.GetBills;
+using FinTracker.Logic.Handlers.Bill.UpdateBill;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.Api.Controllers.Bill;
 
 [ApiController]
-[Route("api/bills")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/bills")]
 public class BillController : ControllerBase
 {
-    private readonly IBillManager _billManager;
-    private readonly IMapper _mapper;
+    private readonly IMapper mapper;
+    private readonly IMediator mediator;
 
-    public BillController(IBillManager billManager, IMapper mapper)
+    public BillController(IMapper mapper, IMediator mediator)
     {
-        _billManager = billManager;
-        _mapper = mapper;
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     /// <summary>
@@ -30,11 +35,11 @@ public class BillController : ControllerBase
     [ProducesResponseType<CreateBillResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateBill([FromBody] CreateBillRequest createBillRequest)
     {
-        var createBillParam = _mapper.Map<CreateBillParam>(createBillRequest);
+        var createdBill = await mediator.Send(new CreateBillCommand(
+            title: createBillRequest.Title,
+            amount: createBillRequest.Amount));
         
-        var createBillResult = await _billManager.CreateBill(createBillParam);
-        
-        var response = _mapper.Map<CreateBillResponse>(createBillResult);
+        var response = mapper.Map<CreateBillResponse>(createdBill);
         
         return Ok(response);
     }
@@ -46,9 +51,9 @@ public class BillController : ControllerBase
     [ProducesResponseType<GetBillResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetBill([FromRoute] Guid billId)
     {
-        var getBillResult = await _billManager.GetBill(billId);
+        var bill = await mediator.Send(new GetBillCommand(billId: billId));
         
-        var response = _mapper.Map<GetBillResponse>(getBillResult);
+        var response = mapper.Map<GetBillResponse>(bill);
         
         return Ok(response);
     }
@@ -60,9 +65,9 @@ public class BillController : ControllerBase
     [ProducesResponseType<GetBillsResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetBills()
     {
-        var getBillsResult = await _billManager.GetBills();
+        var bills = await mediator.Send(new GetBillsCommand());
         
-        var response = _mapper.Map<GetBillsResponse>(getBillsResult);
+        var response = mapper.Map<GetBillsResponse>(bills);
         
         return Ok(response);
     }
@@ -74,10 +79,11 @@ public class BillController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> UpdateBill([FromRoute] Guid billId, [FromBody] UpdateBillRequest updateBillRequest)
     {
-        var updateBillParam = _mapper.Map<UpdateBillParam>((billId, updateBillRequest));
+        await mediator.Send(new UpdateBillCommand(
+            billId: billId,
+            title: updateBillRequest.Title,
+            amount: updateBillRequest.Amount));
         
-        await _billManager.UpdateBill(updateBillParam);
-
         return Ok();
     }
 
@@ -88,9 +94,8 @@ public class BillController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> DeleteBill([FromRoute] Guid billId)
     {
-        await _billManager.DeleteBill(billId);
+        await mediator.Send(new DeleteBillCommand(billId: billId));
         
         return Ok();
     }
-
 }

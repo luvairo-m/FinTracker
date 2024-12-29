@@ -4,24 +4,28 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
-using FinTracker.Logic.Managers.Payment.Interfaces;
-using FinTracker.Logic.Models.Payment.Params;
-using Microsoft.AspNetCore.Http;
+using FinTracker.Logic.Handlers.Payment.CreatePayment;
+using FinTracker.Logic.Handlers.Payment.DeletePayment;
+using FinTracker.Logic.Handlers.Payment.GetPayment;
+using FinTracker.Logic.Handlers.Payment.GetPayments;
+using FinTracker.Logic.Handlers.Payment.UpdatePayment;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.Api.Controllers.Payment;
 
 [ApiController]
-[Route("api/payments")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/payments")]
 public class PaymentController : ControllerBase
 {
-    private readonly IPaymentManager _paymentManager;
-    private readonly IMapper _mapper;
+    private readonly IMapper mapper;
+    private readonly IMediator mediator;
 
-    public PaymentController(IPaymentManager paymentManager, IMapper mapper)
+    public PaymentController(IMapper mapper, IMediator mediator)
     {
-        _paymentManager = paymentManager;
-        _mapper = mapper;
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     /// <summary>
@@ -31,11 +35,14 @@ public class PaymentController : ControllerBase
     [ProducesResponseType<CreatePaymentResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> CreatePayment([FromBody] CreatePaymentRequest createPaymentRequest)
     {
-        var createPaymentParam = _mapper.Map<CreatePaymentParam>(createPaymentRequest);
+        var createdPayment = await mediator.Send(new CreatePaymentCommand(
+            title: createPaymentRequest.Title,
+            description: createPaymentRequest.Description,
+            billId: createPaymentRequest.BillId,
+            amount: createPaymentRequest.Amount,
+            operation: createPaymentRequest.Operation));
         
-        var createPaymentResult = await _paymentManager.CreatePayment(createPaymentParam);
-        
-        var response = _mapper.Map<CreatePaymentResponse>(createPaymentResult);
+        var response = mapper.Map<CreatePaymentResponse>(createdPayment);
         
         return Ok(response);
     }
@@ -47,9 +54,9 @@ public class PaymentController : ControllerBase
     [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetPayment(Guid paymentId)
     {
-        var getPaymentResult = await _paymentManager.GetPayment(paymentId);
+        var payment = await mediator.Send(new GetPaymentCommand(paymentId: paymentId));
         
-        var response = _mapper.Map<GetPaymentResponse>(getPaymentResult);
+        var response = mapper.Map<GetPaymentResponse>(payment);
         
         return Ok(response);
     }
@@ -61,9 +68,9 @@ public class PaymentController : ControllerBase
     [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetPayments()
     {
-        var getPaymentsResult = await _paymentManager.GetPayments();
+        var payments = await mediator.Send(new GetPaymentsCommand());
         
-        var response = _mapper.Map<GetPaymentsResponse>(getPaymentsResult);
+        var response = mapper.Map<GetPaymentsResponse>(payments);
 
         return Ok(response);
     }
@@ -75,9 +82,13 @@ public class PaymentController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
-        var updatePaymentParam = _mapper.Map<UpdatePaymentParam>((paymentId, updatePaymentRequest));
-        
-        await _paymentManager.UpdatePayment(updatePaymentParam);
+        await mediator.Send(new UpdatePaymentCommand(
+            paymentId: paymentId,
+            title: updatePaymentRequest.Title,
+            description: updatePaymentRequest.Description,
+            billId: updatePaymentRequest.BillId,
+            amount: updatePaymentRequest.Amount,
+            operation: updatePaymentRequest.Operation));
         
         return Ok();
     }
@@ -89,7 +100,7 @@ public class PaymentController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> DeletePayment(Guid paymentId)
     {
-        await _paymentManager.DeletePayment(paymentId);
+        await mediator.Send(new DeletePaymentCommand(paymentId: paymentId));
 
         return Ok();
     }

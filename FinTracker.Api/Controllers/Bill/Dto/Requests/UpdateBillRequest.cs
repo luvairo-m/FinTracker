@@ -11,5 +11,5 @@ public record struct UpdateBillRequest
     public required string Title { get; init; }
 
     [Required]
-    public required int Amount { get; init; }
+    public required decimal Amount { get; init; }
 }
