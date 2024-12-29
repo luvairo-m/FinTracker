@@ -4,5 +4,5 @@ namespace FinTracker.Api.Controllers.Category.Dto.Responses;
 
 public record struct GetCategoriesResponse
 {
-    public required ICollection<GetCategoryResponse> Categories { get; set; }
+    public required ICollection<GetCategoryResponse> Categories { get; init; }
 }

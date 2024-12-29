@@ -26,20 +26,11 @@ public record struct UpdatePaymentRequest : IValidatableObject
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        var validationResults = new List<ValidationResult>(2);
-        
-        if (Operation == FinancialOperation.Expense && Amount > 0)
-        {
-            validationResults.Add(new ValidationResult(
-                "Сумма не может быть положительной для операции расхода", 
-                [nameof(Amount)]));
-        }
+        var validationResults = Array.Empty<ValidationResult>();
 
-        if (Operation == FinancialOperation.Income && Amount < 0)
+        if (Amount < 0)
         {
-            validationResults.Add(new ValidationResult(
-                "Сумма не может быть отрицательной для операции дохода", 
-                [nameof(Amount)]));
+            return [new ValidationResult("Сумма платежа не может быть отрицательной", [nameof(Amount)])];
         }
 
         return validationResults;

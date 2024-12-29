@@ -10,15 +10,10 @@ public class BillMapper : Profile
 {
     public BillMapper()
     {
-        CreateMap<CreateBillModel, CreateBillResponse>()
-            .ForMember(dest => dest.BillId, opt => opt.MapFrom(src => src.BillId));
+        CreateMap<CreateBillModel, CreateBillResponse>();
+
+        CreateMap<GetBillModel, GetBillResponse>();
         
-        CreateMap<GetBillModel, GetBillResponse>()
-            .ForMember(dest => dest.BillId, opt => opt.MapFrom(src => src.BillId))
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-            .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount));
-        
-        CreateMap<GetPaymentsModel, GetPaymentsResponse>()
-            .ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments));
+        CreateMap<GetBillsModel, GetBillsResponse>();
     }
 }

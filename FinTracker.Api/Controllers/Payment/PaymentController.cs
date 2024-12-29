@@ -33,7 +33,7 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreatePaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> CreatePayment([FromBody] CreatePaymentRequest createPaymentRequest)
+    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest createPaymentRequest)
     {
         var createdPayment = await mediator.Send(new CreatePaymentCommand(
             title: createPaymentRequest.Title,
@@ -52,7 +52,7 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpGet("{paymentId::guid}")]
     [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetPayment(Guid paymentId)
+    public async Task<IActionResult> GetPayment(Guid paymentId)
     {
         var payment = await mediator.Send(new GetPaymentCommand(paymentId: paymentId));
         
@@ -66,7 +66,7 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetPayments()
+    public async Task<IActionResult> GetPayments()
     {
         var payments = await mediator.Send(new GetPaymentsCommand());
         
@@ -80,7 +80,7 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpPut("{paymentId::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
+    public async Task<IActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
         await mediator.Send(new UpdatePaymentCommand(
             paymentId: paymentId,
@@ -98,7 +98,7 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpDelete("{paymentId::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> DeletePayment(Guid paymentId)
+    public async Task<IActionResult> DeletePayment(Guid paymentId)
     {
         await mediator.Send(new DeletePaymentCommand(paymentId: paymentId));
 

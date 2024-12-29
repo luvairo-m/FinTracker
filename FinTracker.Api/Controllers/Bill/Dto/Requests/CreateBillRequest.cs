@@ -9,5 +9,5 @@ public record struct CreateBillRequest
     public required string Title { get; init; }
 
     [Required]
-    public required decimal Amount { get; set; }
+    public required decimal Amount { get; init; }
 }

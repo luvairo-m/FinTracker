@@ -33,7 +33,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
     {
         var createdCategory = await mediator.Send(new CreateCategoryCommand(title: createCategoryRequest.Title));
         
@@ -47,7 +47,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpGet("{categoryId::guid}")]
     [ProducesResponseType<GetCategoryResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetCategory(Guid categoryId)
+    public async Task<IActionResult> GetCategory(Guid categoryId)
     {
         var category = await mediator.Send(new GetCategoryCommand(categoryId: categoryId));
         
@@ -61,7 +61,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetCategoriesResponse>((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetCategories()
+    public async Task<IActionResult> GetCategories()
     {
         var categories = await mediator.Send(new GetCategoriesCommand());
         
@@ -75,7 +75,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpPut("{categoryId::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
+    public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
         await mediator.Send(new UpdateCategoryCommand(categoryId: categoryId, title: updateCategoryRequest.Title));
         
@@ -87,7 +87,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpDelete("{categoryId::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> DeleteCategory(Guid categoryId)
+    public async Task<IActionResult> DeleteCategory(Guid categoryId)
     {
         await mediator.Send(new DeleteCategoryCommand(categoryId: categoryId));
         

@@ -1,4 +1,4 @@
-using System;
+using FinTracker.Api.Configuration.Mapper;
 using FinTracker.Api.Configuration.Swagger;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using Microsoft.AspNetCore.Builder;
@@ -24,7 +24,7 @@ public class Startup
 
         services.AddApiVersioning();
 
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddMapper();
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         
