@@ -1,4 +1,5 @@
-using FinTracker.Api.Configuration.Mapper;
+using System;
+using AutoMapper;
 using FinTracker.Api.Configuration.Swagger;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using Microsoft.AspNetCore.Builder;
@@ -24,15 +25,17 @@ public class Startup
 
         services.AddApiVersioning();
 
-        services.AddMapper();
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         
         services.AddSwaggerDocumentation();
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMapper mapper)
     {
+        mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        
         if (env.IsDevelopment())
         {
             app.UseSwaggerDocumentation();

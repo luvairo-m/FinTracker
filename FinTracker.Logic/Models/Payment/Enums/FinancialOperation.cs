@@ -2,7 +2,7 @@
 
 public enum FinancialOperation
 {
-    NoKnown,
-    Expense,
-    Income
+    Unknown,
+    Income,
+    Outcome
 }
