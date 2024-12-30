@@ -4,12 +4,12 @@ using FinTracker.Dal.Models.Categories;
 namespace FinTracker.Dal.Repositories.Categories;
 
 /// <summary>
-/// Репозиторий для работы с категориями.
+/// Репозиторий для работы с платежными категориями.
 /// </summary>
 public interface ICategoryRepository
 {
     /// <summary>
-    /// Добавить категорию.
+    /// Добавить новую категорию.
     /// </summary>
     /// <param name="category"></param>
     /// <param name="timeout"></param>
@@ -17,27 +17,27 @@ public interface ICategoryRepository
     Task<DbQueryResult<Guid>> AddAsync(Category category, TimeSpan? timeout = null);
 
     /// <summary>
-    /// Удалить категорию по идентификатору.
+    /// Поиск по категориям.
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="timeout"></param>
+    /// <returns></returns>
+    Task<DbQueryResult<ICollection<Category>>> SearchAsync(CategorySearch search, TimeSpan? timeout = null);
+
+    /// <summary>
+    /// Удалить категорию.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
     Task<DbQueryResult> RemoveAsync(Guid id, TimeSpan? timeout = null);
-    
-    /// <summary>
-    /// Найти категорию по фильтру.
-    /// </summary>
-    /// <param name="filter"></param>
-    /// <param name="timeout"></param>
-    /// <returns></returns>
-    Task<DbQueryResult<ICollection<Category>>> SearchAsync(CategoryFilter filter, TimeSpan? timeout = null);
 
     /// <summary>
-    /// Обновить название категории.
+    /// Обновить категорию по идентификатору.
     /// </summary>
-    /// <param name="filter"></param>
-    /// <param name="newTitle"></param>
+    /// <param name="id"></param>
+    /// <param name="update"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
-    Task<DbQueryResult> UpdateAsync(CategoryFilter filter, string newTitle, TimeSpan? timeout = null);
+    Task<DbQueryResult> UpdateAsync(Guid id, CategoryUpdate update, TimeSpan? timeout = null);
 }

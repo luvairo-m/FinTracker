@@ -1,150 +1,96 @@
-﻿using FinTracker.Dal.Logic;
-using FinTracker.Dal.Models.Categories;
+﻿using FinTracker.Dal.Models.Categories;
 using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Integration.Tests.Utils;
-using FluentAssertions;
-using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
 namespace FinTracker.Integration.Tests.Repositories.Categories;
 
-public class CategoryRepositoryTests
+public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySearch, CategoryUpdate>
 {
-    private readonly DatabaseInitializer databaseInitializer = new(
-        TestCredentials.FinTrackerConnectionString,
-        Directory.GetFiles("Scripts/Categories/Create", "*.sql", SearchOption.AllDirectories),
-        Directory.GetFiles("scripts/Categories/Remove", "*.sql", SearchOption.AllDirectories));
-    
-    private readonly ICategoryRepository categoryRepository = new CategoryRepository(
-        TestCredentials.FinTrackerConnectionString, 
-        new SilentLog());
-
-    private readonly Category[] categories = 
+    public CategoryRepositoryTests()
     {
-        new() { Title = "Спорт" },
-        new() { Title = "Еда" },
-        new() { Title = "Обучение" }
-    };
+        this.databaseInitializer = new DatabaseInitializer(
+            TestCredentials.FinTrackerConnectionString,
+            Directory.GetFiles("Scripts/Categories/Create", "*.sql", SearchOption.AllDirectories),
+            Directory.GetFiles("Scripts/Categories/Drop", "*.sql", SearchOption.AllDirectories));
 
-    [OneTimeSetUp]
-    public async Task OneTimeSetUp()
+        this.repository = new CategoryRepository(TestCredentials.FinTrackerConnectionString, new SilentLog());
+    }
+
+    protected override async Task<ICollection<Category>> CreateModelsInRepository(int count)
     {
-        await this.databaseInitializer.DropTablesAsync();
-        (await this.databaseInitializer.CreateTablesAsync()).EnsureSuccess();
-        
+        var categories = Enumerable
+            .Range(0, count)
+            .Select(_ => new Category 
+            { 
+                Title = Guid.NewGuid().ToString(), 
+                Description = Guid.NewGuid().ToString() 
+            })
+            .ToList();
+
         foreach (var category in categories)
         {
-            var addResult = await this.categoryRepository.AddAsync(category);
+            var addResult = await this.repository.AddAsync(category);
             addResult.EnsureSuccess();
 
             category.Id = addResult.Result;
+            this.addedIds.Add(addResult.Result);
         }
+
+        return categories;
     }
 
-    [OneTimeTearDown]
-    public async Task OneTimeTearDown()
+    protected override IEnumerable<CategorySearch> CreateSearchModels(Category model, bool byIdOnly = false)
     {
-        await this.databaseInitializer.DropTablesAsync();
-    }
-
-    [Test(Description = "Category title must be unique across the table.")]
-    public async Task AddAsync_Duplicate()
-    {
-        // Arrange
-        var category = categories.First();
-        
-        // Act
-        var addResult = await this.categoryRepository.AddAsync(category);
-        
-        // Assert
-        addResult.Status.Should().Be(DbQueryResultStatus.Error);
-    }
-
-    [Test]
-    public async Task SearchAsync_Success()
-    {
-        // Arrange
-        var category = this.categories.Skip(1).First();
-        var searchResults = new List<DbQueryResult<ICollection<Category>>>();
-        
-        // Act
-        foreach (var filter in GetSuccessfulFilters(category))
+        if (model == null)
         {
-            searchResults.Add(await this.categoryRepository.SearchAsync(filter));
+            yield return new CategorySearch();
+            yield break;
+        }
+
+        if (byIdOnly)
+        {
+            yield return new CategorySearch { Id = model.Id };
+            yield break;
         }
         
-        // Assert
-        foreach (var result in searchResults)
+        yield return new CategorySearch
         {
-            result.Status.Should().Be(DbQueryResultStatus.Ok);
-            result.Result.Should().HaveCount(1).And.ContainSingle(cat => cat.Id == category.Id && cat.Title == category.Title);
-        }
-    }
-
-    [Test]
-    public async Task SearchAsync_NotFound()
-    {
-        // Arrange
-        var filter = new CategoryFilter { Id = Guid.Empty };
-        
-        // Act
-        var searchResult = await this.categoryRepository.SearchAsync(filter);
-        
-        // Assert
-        searchResult.Status.Should().Be(DbQueryResultStatus.NotFound);
-    }
-
-    [Test]
-    public async Task RemoveAsync_Success()
-    {
-        // Arrange
-        var categoryId = this.categories.First().Id;
-        
-        // Act
-        var removeResult = await this.categoryRepository.RemoveAsync(categoryId);
-        
-        // Assert
-        removeResult.Status.Should().Be(DbQueryResultStatus.Ok);
-        
-        var searchResult = await this.categoryRepository.SearchAsync(new CategoryFilter { Id = categoryId });
-        searchResult.Status.Should().Be(DbQueryResultStatus.NotFound);
-    }
-
-    [Test]
-    public async Task UpdateAsync_Success()
-    {
-        // Arrange
-        const string newTitle = "Учеба";
-        
-        var filter = new CategoryFilter { Id = this.categories.Last().Id };
-        
-        // Act
-        var updateResult = await this.categoryRepository.UpdateAsync(filter, newTitle);
-        
-        // Assert
-        updateResult.Status.Should().Be(DbQueryResultStatus.Ok);
-        
-        var searchResult = await this.categoryRepository.SearchAsync(filter);
-        searchResult.Status.Should().Be(DbQueryResultStatus.Ok);
-        searchResult.Result.Should().HaveCount(1).And.ContainSingle(cat => cat.Title == newTitle);
-    }
-
-    private static IEnumerable<CategoryFilter> GetSuccessfulFilters(Category category)
-    {
-        yield return new CategoryFilter
-        {
-            Id = category.Id,
-            SearchText = category.Title
+            Id = model.Id,
+            TitleSubstring = model.Title
         };
         
-        yield return new CategoryFilter
+        yield return new CategorySearch
         {
-            Id = category.Id
+            Id = model.Id
         };
         
-        yield return new CategoryFilter
+        yield return new CategorySearch
         {
-            SearchText = category.Title
+            TitleSubstring = model.Title
         };
+    }
+
+    protected override (CategoryUpdate update, Category updated) CreateMetaForUpdate(Category model)
+    {
+        var update = new CategoryUpdate
+        {
+            Title = model.Title + model.Title,
+            Description = model.Description + model.Description
+        };
+
+        var updated = new Category
+        {
+            Id = model.Id,
+            Title = update.Title,
+            Description = update.Description
+        };
+
+        return (update, updated);
+    }
+
+    protected override bool Equals(Category first, Category second)
+    {
+        return first.Id == second.Id && first.Title == second.Title && first.Description == second.Description;
     }
 }

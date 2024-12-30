@@ -1,30 +1,35 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FinTracker.Dal.Models.Categories;
+namespace FinTracker.Dal.Models.Bills;
 
 /// <summary>
-/// Категория платежа.
+/// Счет.
 /// </summary>
-[Table("Category", Schema = "dbo")]
-public class Category : IEntity
+public class Bill : IEntity
 {
     /// <summary>
-    /// Идентификатор категории.
+    /// Идентификатор счета.
     /// </summary>
     [Key]
     [Column("Id")]
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Название категории.
+    /// Баланс счета.
+    /// </summary>
+    [Column("Balance")]
+    public double Balance { get; set; }
+    
+    /// <summary>
+    /// Название счета.
     /// </summary>
     [Column("Title")]
     public string Title { get; set; }
-    
+
     /// <summary>
-    /// Описание категории (опционально).
+    /// Описание счета.
     /// </summary>
     [Column("Description")]
-    public string Description { get; set; }
+    private string Description { get; set; }
 }
