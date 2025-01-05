@@ -1,13 +1,14 @@
 ﻿using Dapper;
 using FinTracker.Dal.Logic;
+using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Logic.Extensions;
-using FinTracker.Dal.Models;
+using FinTracker.Dal.Models.Abstractions;
 using Microsoft.Data.SqlClient;
 using Vostok.Logging.Abstractions;
 
 namespace FinTracker.Dal.Repositories;
 
-public abstract class RepositoryBase<TModel, TSearchModel, TUpdateModel> 
+public abstract class RepositoryBase<TModel, TSearchModel> 
     where TModel : IEntity
 {
     protected abstract string EntityName { get; }
@@ -15,25 +16,25 @@ public abstract class RepositoryBase<TModel, TSearchModel, TUpdateModel>
     private static readonly string TableName = typeof(TModel).GetTableName();
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
     
-    private readonly string connectionString;
+    private readonly ISqlConnectionFactory connectionFactory;
     private readonly ILog log;
     
-    protected RepositoryBase(string connectionString, ILog log)
+    protected RepositoryBase(ISqlConnectionFactory connectionFactory, ILog log)
     {
-        this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        this.connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         this.log = log ?? throw new ArgumentNullException(nameof(log));
     }
     
     public async Task<DbQueryResult<Guid>> AddAsync(TModel model, TimeSpan? timeout = null)
     {
         var columns = string.Join(", ", typeof(TModel).GetColumnNames());
-        var parameters = string.Join(", ", typeof(TModel).GetParameterNames(includeKeys: false));
+        var parameters = string.Join(", ", typeof(TModel).GetParameterNames(withKeys: false));
         
         var insertScript = @$"INSERT INTO {TableName} ({columns})
                               OUTPUT INSERTED.Id
                               VALUES (NEWID(), {parameters})";
-        
-        await using var connection = new SqlConnection(this.connectionString);
+
+        using var connection = await this.connectionFactory.CreateAsync();
         
         try
         {
@@ -51,18 +52,26 @@ public abstract class RepositoryBase<TModel, TSearchModel, TUpdateModel>
         }
         catch (SqlException sqlException)
         {
-            var errorMessage = $"Error while adding new {this.EntityName} to database.";
-            this.log.Error(sqlException, errorMessage);
+            // Codes are MSSQL specific.
+            var conflictError = sqlException.Number is 2601 or 2627;
 
-            return DbQueryResult<Guid>.Error(errorMessage);
+            var errorMessage = conflictError
+                ? $"Inserting new {this.EntityName} failed: unique constraint violated."
+                : $"Error while adding new {this.EntityName} to database.";
+            
+            this.log.Error(sqlException, errorMessage);
+            
+            return conflictError 
+                ? DbQueryResult<Guid>.Conflict(errorMessage) 
+                : DbQueryResult<Guid>.Error(errorMessage);
         }
     }
 
     public async Task<DbQueryResult> RemoveAsync(Guid id, TimeSpan? timeout = null)
     {
         var removeScript = $"DELETE FROM {TableName} WHERE Id = @Id";
-            
-        await using var connection = new SqlConnection(this.connectionString);
+
+        using var connection = await this.connectionFactory.CreateAsync();
         
         try
         { 
@@ -87,22 +96,22 @@ public abstract class RepositoryBase<TModel, TSearchModel, TUpdateModel>
         }
     }
 
-    public async Task<DbQueryResult<ICollection<TModel>>> SearchAsync(TSearchModel searchModel, TimeSpan? timeout = null)
+    public async Task<DbQueryResult<ICollection<TModel>>> SearchAsync(TSearchModel search, TimeSpan? timeout = null)
     {
         var selectScript = $@"SELECT {string.Join(", ", typeof(TModel).GetColumnNames())}
                               FROM {TableName}
-                              {searchModel.ToWhereExpression()}";
-            
-        await using var connection = new SqlConnection(this.connectionString);
+                              {search.ToWhereExpression()}";
+
+        using var connection = await this.connectionFactory.CreateAsync();
                 
         try
         { 
-            this.log.Info("Searching for {0} entities by filter: {1}...", this.EntityName, searchModel.ToString());
+            this.log.Info("Searching for {0} entities by filter: {1}...", this.EntityName, search.ToString());
             
             var foundEntities = (await connection.QueryAsync<TModel>(
                 new CommandDefinition(
                     selectScript, 
-                    searchModel.ToParametersWithValues((type, val) => type == typeof(string) ? $"%{val}%" : val), 
+                    search.ToParametersWithValues(), 
                     commandTimeout: GetTimeoutSeconds(timeout)))).AsList();
 
             this.log.Info("Search operation completed! Found {0} entities.", foundEntities.Count);
@@ -120,23 +129,20 @@ public abstract class RepositoryBase<TModel, TSearchModel, TUpdateModel>
         }
     }
 
-    public async Task<DbQueryResult> UpdateAsync(Guid id, TUpdateModel updateModel, TimeSpan? timeout = null)
+    public async Task<DbQueryResult> UpdateAsync(TModel update, TimeSpan? timeout = null)
     {
-        var updateScript = $"UPDATE {TableName} {updateModel.ToSetExpression()} WHERE Id = @Id";
-        
-        await using var connection = new SqlConnection(this.connectionString);
+        var updateScript = $"UPDATE {TableName} {update.ToSetExpression()} WHERE Id = @Id";
+
+        using var connection = await this.connectionFactory.CreateAsync();
 
         try
         { 
-            this.log.Info("Trying to update {0} (Id: {1})...", this.EntityName, id);
+            this.log.Info("Trying to update {0} (Id: {1})...", this.EntityName, update.Id);
 
-            var updateParams = updateModel.ToParametersWithValues();
-            updateParams.Add("Id", id);
-            
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     updateScript, 
-                    updateParams, 
+                    update, 
                     commandTimeout: GetTimeoutSeconds(timeout)));
 
             this.log.Info("{0} successfully updated!", this.EntityName);

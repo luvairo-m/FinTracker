@@ -35,9 +35,8 @@ public interface ICategoryRepository
     /// <summary>
     /// Обновить категорию по идентификатору.
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="update"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
-    Task<DbQueryResult> UpdateAsync(Guid id, CategoryUpdate update, TimeSpan? timeout = null);
+    Task<DbQueryResult> UpdateAsync(Category update, TimeSpan? timeout = null);
 }

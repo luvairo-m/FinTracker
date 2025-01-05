@@ -39,6 +39,12 @@
       <None Update="Scripts\Currencies\Create\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Scripts\Bills\Create\v1.0\script.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\Bills\Drop\v1.0\script.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

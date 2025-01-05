@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinTracker.Dal.Models.Abstractions;
 
 namespace FinTracker.Dal.Models.Bills;
 
 /// <summary>
 /// Счет.
 /// </summary>
+[Table("Bill", Schema = "dbo")]
 public class Bill : IEntity
 {
     /// <summary>
@@ -13,13 +16,14 @@ public class Bill : IEntity
     /// </summary>
     [Key]
     [Column("Id")]
+    [ReadOnly(isReadOnly: true)]
     public Guid Id { get; set; }
     
     /// <summary>
     /// Баланс счета.
     /// </summary>
     [Column("Balance")]
-    public double Balance { get; set; }
+    public decimal? Balance { get; set; }
     
     /// <summary>
     /// Название счета.

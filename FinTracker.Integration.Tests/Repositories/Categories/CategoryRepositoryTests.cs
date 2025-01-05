@@ -1,11 +1,14 @@
-﻿using FinTracker.Dal.Models.Categories;
+﻿using FinTracker.Dal.Logic.Connections;
+using FinTracker.Dal.Models.Categories;
 using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Integration.Tests.Utils;
+using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
 namespace FinTracker.Integration.Tests.Repositories.Categories;
 
-public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySearch, CategoryUpdate>
+[TestFixture]
+public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySearch>
 {
     public CategoryRepositoryTests()
     {
@@ -14,40 +17,22 @@ public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySea
             Directory.GetFiles("Scripts/Categories/Create", "*.sql", SearchOption.AllDirectories),
             Directory.GetFiles("Scripts/Categories/Drop", "*.sql", SearchOption.AllDirectories));
 
-        this.repository = new CategoryRepository(TestCredentials.FinTrackerConnectionString, new SilentLog());
+        this.repository = new CategoryRepository(
+            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
+            new SilentLog());
     }
 
-    protected override async Task<ICollection<Category>> CreateModelsInRepository(int count)
+    protected override Category CreateModel()
     {
-        var categories = Enumerable
-            .Range(0, count)
-            .Select(_ => new Category 
-            { 
-                Title = Guid.NewGuid().ToString(), 
-                Description = Guid.NewGuid().ToString() 
-            })
-            .ToList();
-
-        foreach (var category in categories)
+        return new Category
         {
-            var addResult = await this.repository.AddAsync(category);
-            addResult.EnsureSuccess();
-
-            category.Id = addResult.Result;
-            this.addedIds.Add(addResult.Result);
-        }
-
-        return categories;
+            Title = Guid.NewGuid().ToString(),
+            Description = Guid.NewGuid().ToString()
+        };
     }
 
     protected override IEnumerable<CategorySearch> CreateSearchModels(Category model, bool byIdOnly = false)
     {
-        if (model == null)
-        {
-            yield return new CategorySearch();
-            yield break;
-        }
-
         if (byIdOnly)
         {
             yield return new CategorySearch { Id = model.Id };
@@ -71,26 +56,13 @@ public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySea
         };
     }
 
-    protected override (CategoryUpdate update, Category updated) CreateMetaForUpdate(Category model)
+    protected override Category ApplyUpdate(Category model, Category update)
     {
-        var update = new CategoryUpdate
-        {
-            Title = model.Title + model.Title,
-            Description = model.Description + model.Description
-        };
-
-        var updated = new Category
+        return new Category
         {
             Id = model.Id,
-            Title = update.Title,
-            Description = update.Description
+            Title = update.Title ?? model.Title,
+            Description = update.Description ?? model.Description
         };
-
-        return (update, updated);
-    }
-
-    protected override bool Equals(Category first, Category second)
-    {
-        return first.Id == second.Id && first.Title == second.Title && first.Description == second.Description;
     }
 }

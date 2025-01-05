@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
@@ -10,6 +11,9 @@ namespace FinTracker.Dal.Logic.Extensions;
 
 internal static class SqlExtensions
 {
+    private const char defaultParamPrefix = '@';
+    private const string defaultValueTemplate = "{0}";
+    
     private static readonly ConcurrentDictionary<Type, PropertyInfo[]> TypeProperties = new();
     
     public static string GetTableName(this Type tableType)
@@ -18,17 +22,17 @@ internal static class SqlExtensions
         return $"{tableMeta.schema}.{tableMeta.name}";
     }
     
-    public static IEnumerable<string> GetColumnNames(this Type type, bool includeKeys = true)
+    public static IEnumerable<string> GetColumnNames(this Type type, bool withKeys = true)
     {
         return GetProperties(type)
-            .FilterSqlProperties(includeKeys: includeKeys)
+            .WithoutIgnored(withKeys: withKeys)
             .Select(prop => prop.GetCustomAttribute<ColumnAttribute>()?.Name ?? prop.Name);
     }
 
-    public static IEnumerable<string> GetParameterNames(this Type type, char paramPrefix = '@', bool includeKeys = true)
+    public static IEnumerable<string> GetParameterNames(this Type type, char paramPrefix = '@', bool withKeys = true)
     {
         return GetProperties(type)
-            .FilterSqlProperties(includeKeys: includeKeys)
+            .WithoutIgnored(withKeys: withKeys)
             .Select(prop => $"{paramPrefix}{prop.Name}");
     }
     
@@ -36,13 +40,14 @@ internal static class SqlExtensions
     {
         return CreateExpressionFromModel(
             sqlModel,
+            include: _ => true,
             operatorSelector: prop => prop.PropertyType == typeof(string)
                 ? "LIKE"
                 : prop.PropertyType.IsAssignableTo(typeof(IEnumerable))
                     ? "IN"
                     : "=",
             conditionLinker: conditions => SqlRequestUtils.BuildWhereExpression(conditions),
-            paramPrefix: '@',
+            paramPrefix: defaultParamPrefix,
             skipNull: skipNull);
     }
     
@@ -50,15 +55,14 @@ internal static class SqlExtensions
     {
         return CreateExpressionFromModel(
             sqlModel,
+            include: prop => prop.GetCustomAttribute<ReadOnlyAttribute>() is not { IsReadOnly: true },
             operatorSelector: _ => "=", 
             conditionLinker: SqlRequestUtils.BuildSetExpression, 
-            paramPrefix: '@',
+            paramPrefix: defaultParamPrefix,
             skipNull: skipNull);
     }
 
-    public static Dictionary<string, object> ToParametersWithValues<T>(
-        this T sqlModel, 
-        Func<Type, object, object> resultSelector = null)
+    public static Dictionary<string, object> ToParametersWithValues<T>(this T sqlModel)
     {
         return GetProperties(typeof(T))
             .ToDictionary(
@@ -66,7 +70,16 @@ internal static class SqlExtensions
                 prop =>
                 {
                     var propValue = prop.GetValue(sqlModel);
-                    return resultSelector == null ? propValue : resultSelector(prop.PropertyType, propValue);
+
+                    if (propValue == null)
+                    {
+                        return null;
+                    }
+
+                    var templateAttribute = prop.GetCustomAttribute<ValueTemplateAttribute>();
+                    var template = templateAttribute?.Template ?? defaultValueTemplate;
+
+                    return (object)string.Format(template, propValue);
                 });
     }
     
@@ -78,17 +91,23 @@ internal static class SqlExtensions
 
     private static string CreateExpressionFromModel<T>(
         T model, 
+        Func<PropertyInfo, bool> include,
         Func<PropertyInfo, string> operatorSelector,
         Func<ICollection<string>, string> conditionLinker,
         char paramPrefix,
         bool skipNull)
     {
         var properties = GetProperties(typeof(T));
-        var modelMeta = new List<string>(properties.Length);
+        var conditions = new List<string>(properties.Length);
 
         // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var property in properties)
         {
+            if (!include(property))
+            {
+                continue;
+            }
+            
             var propValue = property.GetValue(model);
 
             if (propValue == null && skipNull)
@@ -99,10 +118,10 @@ internal static class SqlExtensions
             var columnNameAttribute = property.GetCustomAttribute<ColumnAttribute>();
             var columnName = columnNameAttribute?.Name ?? property.Name;
 
-            modelMeta.Add($"{columnName} {operatorSelector(property)} {paramPrefix}{property.Name}");
+            conditions.Add($"{columnName} {operatorSelector(property)} {paramPrefix}{property.Name}");
         }
 
-        return conditionLinker(modelMeta);
+        return conditions.Count == 0 ? string.Empty : conditionLinker(conditions);
     }
 
     private static PropertyInfo[] GetProperties(Type type, BindingFlags? flags = null)
@@ -118,12 +137,10 @@ internal static class SqlExtensions
         return properties;
     }
 
-    private static IEnumerable<PropertyInfo> FilterSqlProperties(
-        this IEnumerable<PropertyInfo> properties,
-        bool includeKeys = true)
+    private static IEnumerable<PropertyInfo> WithoutIgnored(this IEnumerable<PropertyInfo> properties, bool withKeys)
     {
         return properties
             .Where(prop => prop.GetCustomAttribute<IgnoredAttribute>() == null)
-            .Where(prop => includeKeys || prop.GetCustomAttribute<KeyAttribute>() == null);
+            .Where(prop => withKeys || prop.GetCustomAttribute<KeyAttribute>() == null);
     }
 }

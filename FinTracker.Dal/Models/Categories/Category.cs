@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinTracker.Dal.Models.Abstractions;
 
 namespace FinTracker.Dal.Models.Categories;
 
@@ -14,6 +16,7 @@ public class Category : IEntity
     /// </summary>
     [Key]
     [Column("Id")]
+    [ReadOnly(isReadOnly: true)]
     public Guid Id { get; set; }
     
     /// <summary>

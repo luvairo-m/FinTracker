@@ -8,7 +8,7 @@ CREATE TABLE [dbo].[Category]
 (
     [Id] [uniqueidentifier] NOT NULL,
     [Title] [nvarchar] (128) UNIQUE NOT NULL,
-    [Description] [nvarchar] (1024) NOT NULL,
+    [Description] [nvarchar] (1024) NULL,
     CONSTRAINT [PK_Category] PRIMARY KEY CLUSTERED ( [Id] ASC )
     WITH 
     (

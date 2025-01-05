@@ -35,9 +35,8 @@ public interface ICurrencyRepository
     /// <summary>
     /// Обновить валюту по идентификатору.
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="update"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
-    Task<DbQueryResult> UpdateAsync(Guid id, CurrencyUpdate update, TimeSpan? timeout = null);
+    Task<DbQueryResult> UpdateAsync(Currency update, TimeSpan? timeout = null);
 }

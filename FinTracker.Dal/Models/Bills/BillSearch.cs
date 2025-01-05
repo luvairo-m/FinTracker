@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using FinTracker.Dal.Logic.Attributes;
 
-namespace FinTracker.Dal.Models.Currencies;
+namespace FinTracker.Dal.Models.Bills;
 
-public class CurrencySearch
+public class BillSearch
 {
     [Column("Id")]
     public Guid? Id { get; set; }

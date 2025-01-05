@@ -6,7 +6,8 @@ public enum DbQueryResultStatus
 {
     Ok,
     Error,
-    NotFound
+    NotFound,
+    Conflict
 }
 
 public class DbQueryResult
@@ -73,6 +74,11 @@ public class DbQueryResult<T>
     public static DbQueryResult<T> NotFound(string errorMessage)
     {
         return new DbQueryResult<T>(default, DbQueryResultStatus.NotFound, errorMessage);
+    }
+
+    public static DbQueryResult<T> Conflict(string errorMessage)
+    {
+        return new DbQueryResult<T>(default, DbQueryResultStatus.Conflict, errorMessage);
     }
 
     public void EnsureSuccess()

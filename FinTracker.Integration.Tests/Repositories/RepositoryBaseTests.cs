@@ -1,5 +1,5 @@
 ﻿using FinTracker.Dal.Logic;
-using FinTracker.Dal.Models;
+using FinTracker.Dal.Models.Abstractions;
 using FinTracker.Dal.Repositories;
 using FinTracker.Integration.Tests.Utils;
 using FluentAssertions;
@@ -7,12 +7,14 @@ using NUnit.Framework;
 
 namespace FinTracker.Integration.Tests.Repositories;
 
-public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
-    where TModel : class, IEntity
+public abstract class RepositoryBaseTests<TModel, TSearchModel>
+    where TModel : IEntity
+    where TSearchModel : new()
 {
     protected DatabaseInitializer databaseInitializer;
-    protected RepositoryBase<TModel, TSearchModel, TUpdateModel> repository;
-    protected readonly List<Guid> addedIds = new();
+    protected RepositoryBase<TModel, TSearchModel> repository;
+
+    protected readonly List<Guid> currentEntities = new();
     
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -30,9 +32,10 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
     [TearDown]
     public async Task TearDown()
     {
-        foreach (var id in addedIds)
+        foreach (var entityId in this.currentEntities)
         {
-            await this.repository.RemoveAsync(id);
+            var removeResult = await this.repository.RemoveAsync(entityId);
+            removeResult.EnsureSuccess();
         }
     }
 
@@ -40,7 +43,9 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
     public async Task SearchAsync_Success()
     {
         // Arrange
-        var model = (await this.CreateModelsInRepository(5)).Skip(2).First();
+        var models = await this.CreateModelsInRepository(10);
+        var model = models.Skip(5).First();
+        
         var searchResults = new List<DbQueryResult<ICollection<TModel>>>();
         
         // Act
@@ -53,7 +58,8 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
         foreach (var result in searchResults)
         {
             result.Status.Should().Be(DbQueryResultStatus.Ok);
-            result.Result.Should().HaveCount(1).And.ContainSingle(mdl => this.Equals(model, mdl));
+            result.Result.Should().HaveCount(1);
+            result.Result.First().Should().BeEquivalentTo(model);
         }
     }
 
@@ -61,7 +67,7 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
     public async Task SearchAsync_NotFound()
     {
         // Arrange
-        var searchModel = this.CreateSearchModels(null).First();
+        var searchModel = this.CreateSearchModels(this.CreateModel()).First();
 
         // Act
         var searchResult = await this.repository.SearchAsync(searchModel);
@@ -74,7 +80,10 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
     public async Task RemoveAsync_Success()
     {
         // Arrange
-        var model = (await this.CreateModelsInRepository(1)).First();
+        const int modelsCount = 5;
+        
+        var models = await this.CreateModelsInRepository(modelsCount);
+        var model = models.Skip(2).First();
 
         // Act
         var removeResult = await this.repository.RemoveAsync(model.Id);
@@ -82,34 +91,60 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel, TUpdateModel>
         // Assert
         removeResult.Status.Should().Be(DbQueryResultStatus.Ok);
 
-        var searchResult = await this.repository.SearchAsync(this.CreateSearchModels(model).First());
+        var searchResult = await this.repository.SearchAsync(this.CreateSearchModels(model, byIdOnly: true).First());
         searchResult.Status.Should().Be(DbQueryResultStatus.NotFound);
+
+        var fullSearchResult = await this.repository.SearchAsync(new TSearchModel());
+        fullSearchResult.Status.Should().Be(DbQueryResultStatus.Ok);
+        fullSearchResult.Result.Count.Should().Be(modelsCount - 1);
     }
 
     [Test]
     public async Task UpdateAsync_Success()
     {
         // Arrange
-        var model = (await this.CreateModelsInRepository(5)).Skip(3).First();
-        var (updateModel, updatedModel) = this.CreateMetaForUpdate(model);
+        var models = await this.CreateModelsInRepository(5);
+        var model = models.Skip(1).First();
+        
+        var updateModel = this.CreateModel();
+        updateModel.Id = model.Id;
         
         // Act
-        var updateResult = await this.repository.UpdateAsync(model.Id, updateModel);
+        var updateResult = await this.repository.UpdateAsync(updateModel);
 
         // Assert
         updateResult.Status.Should().Be(DbQueryResultStatus.Ok);
 
         var searchResult = await this.repository.SearchAsync(this.CreateSearchModels(model, byIdOnly: true).First());
-        
         searchResult.Status.Should().Be(DbQueryResultStatus.Ok);
-        searchResult.Result.Should().HaveCount(1).And.ContainSingle(mdl => this.Equals(mdl, updatedModel));
+
+        searchResult.Result.Should().HaveCount(1);
+        searchResult.Result.First().Should().BeEquivalentTo(this.ApplyUpdate(model, updateModel));
     }
     
-    protected abstract Task<ICollection<TModel>> CreateModelsInRepository(int count);
-
+    protected abstract TModel CreateModel();
+    
     protected abstract IEnumerable<TSearchModel> CreateSearchModels(TModel model, bool byIdOnly = false);
     
-    protected abstract (TUpdateModel update, TModel updated) CreateMetaForUpdate(TModel model);
-    
-    protected abstract bool Equals(TModel first, TModel second);
+    protected abstract TModel ApplyUpdate(TModel model, TModel update);
+
+    private async Task<ICollection<TModel>> CreateModelsInRepository(int count)
+    {
+        var models = new List<TModel>(count);
+        
+        for (var i = 0; i < count; i++)
+        {
+            var model = this.CreateModel();
+        
+            var addResult = await this.repository.AddAsync(model);
+            addResult.EnsureSuccess();
+        
+            model.Id = addResult.Result;
+            this.currentEntities.Add(addResult.Result); 
+            
+            models.Add(model);
+        }
+
+        return models;
+    }
 }
