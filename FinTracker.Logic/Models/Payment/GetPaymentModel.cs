@@ -1,4 +1,4 @@
-﻿using FinTracker.Logic.Models.Payment.Enums;
+﻿using FinTracker.Dal.Models.Payments;
 
 namespace FinTracker.Logic.Models.Payment;
 
@@ -9,12 +9,16 @@ public struct GetPaymentModel
     public string Title { get; init; }
 
     public string Description { get; init; }
+    
+    public decimal Amount { get; init; }
 
     public Guid BillId { get; init; }
-    
-    public int Amount { get; init; }
-    
-    public FinancialOperation Operation { get; init; }
 
-    public DateTime PaymentDate { get; init; }
+    public Guid CurrencyId { get; set; }
+    
+    public Guid CategoryId { get; set; }
+    
+    public OperationType Type { get; init; }
+
+    public DateTime Date { get; init; }
 }

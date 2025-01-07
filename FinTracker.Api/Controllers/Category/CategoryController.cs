@@ -35,7 +35,9 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
     {
-        var createdCategory = await mediator.Send(new CreateCategoryCommand(title: createCategoryRequest.Title));
+        var createdCategory = await mediator.Send(new CreateCategoryCommand(
+            title: createCategoryRequest.Title,
+            description: createCategoryRequest.Description));
         
         var response = mapper.Map<CreateCategoryResponse>(createdCategory);
         
@@ -77,7 +79,10 @@ public class CategoryController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
-        await mediator.Send(new UpdateCategoryCommand(categoryId: categoryId, title: updateCategoryRequest.Title));
+        await mediator.Send(new UpdateCategoryCommand(
+            categoryId: categoryId, 
+            title: updateCategoryRequest.Title,
+            description: updateCategoryRequest.Description));
         
         return Ok();
     }

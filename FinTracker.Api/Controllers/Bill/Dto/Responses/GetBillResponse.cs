@@ -8,5 +8,7 @@ public record struct GetBillResponse
 
     public required string Title { get; init; }
 
-    public required int Amount { get; init; }
+    public required decimal Balance { get; init; }
+    
+    public required string Description { get; init; }
 }
