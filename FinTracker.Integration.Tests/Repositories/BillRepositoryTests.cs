@@ -23,7 +23,9 @@ public class BillRepositoryTests : RepositoryBaseTests<Bill, BillSearch>
         return new Bill
         {
             Balance = random.Next(0, int.MaxValue),
-            Title = Guid.NewGuid().ToString()
+            Title = Guid.NewGuid().ToString(),
+            Description = Guid.NewGuid().ToString(),
+            CurrencyId = Guid.NewGuid()
         };
     }
 
@@ -34,6 +36,7 @@ public class BillRepositoryTests : RepositoryBaseTests<Bill, BillSearch>
         if (!byIdOnly)
         {
             search.TitleSubstring = model.Title;
+            search.CurrencyId = model.CurrencyId;
         }
 
         return search;
@@ -45,7 +48,9 @@ public class BillRepositoryTests : RepositoryBaseTests<Bill, BillSearch>
         {
             Id = model.Id,
             Balance = update.Balance ?? model.Balance,
-            Title = update.Title ?? model.Title
+            Title = update.Title ?? model.Title,
+            Description = update.Description ?? model.Description,
+            CurrencyId = update.CurrencyId ?? model.CurrencyId
         };
     }
 }

@@ -7,9 +7,10 @@ GO
 CREATE TABLE [dbo].[Bill]
 (
     [Id] [uniqueidentifier] NOT NULL,
-    [Title] [nvarchar] (128) UNIQUE NOT NULL,
     [Balance] [money] NOT NULL,
+    [Title] [nvarchar] (128) UNIQUE NOT NULL,
     [Description] [nvarchar] (1024) NULL,
+    [CurrencyId] [uniqueidentifier] NOT NULL,
     CONSTRAINT [PK_Bill] PRIMARY KEY CLUSTERED ( [Id] ASC )
     WITH
     (

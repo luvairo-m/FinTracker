@@ -26,7 +26,6 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Type = OperationType.Income,
             Date = DateTime.UtcNow,
             BillId = Guid.NewGuid(),
-            CurrencyId = Guid.NewGuid(),
             CategoryId = Guid.NewGuid()
         };
     }
@@ -39,7 +38,6 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
         {
             search.TitleSubstring = model.Title;
             search.BillId = model.BillId;
-            search.CurrencyId = model.CurrencyId;
             search.Months = new[] { model.Date!.Value.Month };
             search.Years = new[] { model.Date!.Value.Year };
             search.Types = new[] { model.Type!.Value };
@@ -66,7 +64,6 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Type = model.Type,
             Date = model.Date,
             BillId = model.BillId,
-            CurrencyId = model.CurrencyId
         };
     }
 }

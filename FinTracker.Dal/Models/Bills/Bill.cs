@@ -35,5 +35,11 @@ public class Bill : IEntity
     /// Описание счета.
     /// </summary>
     [Column("Description")]
-    private string Description { get; set; }
+    public string Description { get; set; }
+    
+    /// <summary>
+    /// Идентификатор валюты счета.
+    /// </summary>
+    [Column("CurrencyId")]
+    public Guid? CurrencyId { get; set; }
 }

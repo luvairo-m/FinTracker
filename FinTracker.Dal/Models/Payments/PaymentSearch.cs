@@ -51,7 +51,4 @@ public class PaymentSearch
     
     [Column("BillId")]
     public Guid? BillId { get; set; }
-    
-    [Column("CurrencyId")]
-    public Guid? CurrencyId { get; set; }
 }

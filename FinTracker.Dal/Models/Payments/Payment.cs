@@ -61,13 +61,6 @@ public class Payment : IEntity
     public Guid? BillId { get; set; }
     
     /// <summary>
-    /// Идентификатор валюты платежа.
-    /// </summary>
-    [Column("CurrencyId")]
-    [ReadOnly(isReadOnly: true)]
-    public Guid? CurrencyId { get; set; }
-    
-    /// <summary>
     /// Идентификатор категории платежа.
     /// </summary>
     [Column("CategoryId")]

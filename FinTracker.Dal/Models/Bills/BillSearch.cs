@@ -10,4 +10,7 @@ public class BillSearch
     [Column("Title")]
     [StringValueTemplate("%{0}%")]
     public string TitleSubstring { get; set; }
+    
+    [Column("CurrencyId")]
+    public Guid? CurrencyId { get; set; }
 }
