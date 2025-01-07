@@ -7,4 +7,6 @@ public record struct GetCategoryResponse
     public required Guid CategoryId { get; init; }
     
     public required string Title { get; init; }
+    
+    public required string Description { get; init; }
 }

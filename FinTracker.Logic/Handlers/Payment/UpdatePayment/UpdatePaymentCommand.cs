@@ -1,4 +1,4 @@
-﻿using FinTracker.Logic.Models.Payment.Enums;
+﻿using FinTracker.Dal.Models.Payments;
 using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.UpdatePayment;
@@ -6,14 +6,16 @@ namespace FinTracker.Logic.Handlers.Payment.UpdatePayment;
 public class UpdatePaymentCommand : IRequest
 {
     public UpdatePaymentCommand(
-        Guid paymentId, string title, string description, Guid billId, decimal amount, FinancialOperation operation)
+        Guid paymentId, string title, string description, decimal amount, Guid billId, Guid currencyId, Guid categoryId, OperationType type)
     {
         PaymentId = paymentId;
-        Title = title;
+        Title = title; 
         Description = description;
-        BillId = billId;
         Amount = amount;
-        Operation = operation;
+        BillId = billId;
+        CurrencyId = currencyId;
+        CategoryId = categoryId;
+        Type = type;
     }
     
     public Guid PaymentId { get; set; }
@@ -21,10 +23,14 @@ public class UpdatePaymentCommand : IRequest
     public string Title { get; set; }
 
     public string Description { get; set; }
+    
+    public decimal Amount { get; set; }
 
     public Guid BillId { get; set; }
 
-    public decimal Amount { get; set; }
+    public Guid CurrencyId { get; set; }
+    
+    public Guid CategoryId { get; set; }
 
-    public FinancialOperation Operation { get; set; }
+    public OperationType Type { get; set; }
 }

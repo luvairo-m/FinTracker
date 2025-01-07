@@ -38,9 +38,11 @@ public class PaymentController : ControllerBase
         var createdPayment = await mediator.Send(new CreatePaymentCommand(
             title: createPaymentRequest.Title,
             description: createPaymentRequest.Description,
-            billId: createPaymentRequest.BillId,
             amount: createPaymentRequest.Amount,
-            operation: createPaymentRequest.Operation));
+            billId: createPaymentRequest.BillId,
+            currencyId:createPaymentRequest.CurrencyId,
+            categoryId:createPaymentRequest.CategoryId,
+            type: createPaymentRequest.Type));
         
         var response = mapper.Map<CreatePaymentResponse>(createdPayment);
         
@@ -86,9 +88,11 @@ public class PaymentController : ControllerBase
             paymentId: paymentId,
             title: updatePaymentRequest.Title,
             description: updatePaymentRequest.Description,
-            billId: updatePaymentRequest.BillId,
             amount: updatePaymentRequest.Amount,
-            operation: updatePaymentRequest.Operation));
+            billId: updatePaymentRequest.BillId,
+            currencyId: updatePaymentRequest.CurrencyId,
+            categoryId: updatePaymentRequest.CategoryId,
+            type: updatePaymentRequest.Type));
         
         return Ok();
     }
