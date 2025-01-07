@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinTracker.Dal.Logic.Attributes;
 using FinTracker.Dal.Models.Abstractions;
 
 namespace FinTracker.Dal.Models.Payments;
@@ -16,25 +17,25 @@ public class Payment : IEntity
     /// </summary>
     [Key]
     [ReadOnly(isReadOnly: true)]
-    [Column("Id")]
+    [Logic.Attributes.Column("Id")]
     public Guid Id { get; set; }
     
     /// <summary>
     /// Название платежа.
     /// </summary>
-    [Column("Title")]
+    [Logic.Attributes.Column("Title")]
     public string Title { get; set; }
     
     /// <summary>
     /// Описание платежа.
     /// </summary>
-    [Column("Description")]
+    [Logic.Attributes.Column("Description")]
     public string Description { get; set; }
     
     /// <summary>
     /// Сумма платежа.
     /// </summary>
-    [Column("Amount")]
+    [Logic.Attributes.Column("Amount")]
     [ReadOnly(isReadOnly: true)]
     public decimal? Amount { get; set; }
     
@@ -42,27 +43,27 @@ public class Payment : IEntity
     /// Тип операции.
     /// Пример: доход, расход.
     /// </summary>
-    [Column("Type")]
+    [Logic.Attributes.Column("Type")]
     [ReadOnly(isReadOnly: true)]
     public OperationType? Type { get; set; }
     
     /// <summary>
     /// Дата совершения платежа (UTC).
     /// </summary>
-    [Column("Date")]
+    [Logic.Attributes.Column("Date")]
     [ReadOnly(isReadOnly: true)]
     public DateTime? Date { get; set; }
     
     /// <summary>
     /// Идентификатор счета платежа.
     /// </summary>
-    [Column("BillId")]
+    [Logic.Attributes.Column("BillId")]
     [ReadOnly(isReadOnly: true)]
     public Guid? BillId { get; set; }
     
     /// <summary>
-    /// Идентификатор категории платежа.
+    /// Категории платежа.
     /// </summary>
-    [Column("CategoryId")]
-    public Guid? CategoryId { get; set; }
+    [Ignored]
+    public ICollection<Guid> Categories { get; set; } = new List<Guid>();
 }

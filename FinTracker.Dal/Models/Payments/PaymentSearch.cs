@@ -51,4 +51,7 @@ public class PaymentSearch
     
     [Column("BillId")]
     public Guid? BillId { get; set; }
+    
+    [Ignored]
+    public ICollection<Guid> Categories { get; set; }
 }

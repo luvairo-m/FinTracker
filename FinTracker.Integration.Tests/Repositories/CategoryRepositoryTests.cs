@@ -1,6 +1,6 @@
 ﻿using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Categories;
-using FinTracker.Dal.Repositories;
+using FinTracker.Dal.Repositories.Categories;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
@@ -9,11 +9,11 @@ namespace FinTracker.Integration.Tests.Repositories;
 [TestFixture]
 public class CategoryRepositoryTests : RepositoryBaseTests<Category, CategorySearch>
 {
-    public CategoryRepositoryTests() 
-        : base(new CategoryRepository(
-            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
-            new SilentLog()))
+    public CategoryRepositoryTests()
     {
+        this.repository = new CategoryRepository(
+            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
+            new SilentLog());
     }
 
     protected override Category CreateModel()

@@ -11,8 +11,9 @@ namespace FinTracker.Dal.Repositories;
 public abstract class RepositoryBase<TModel, TSearchModel> 
     where TModel : IEntity
 {
-    private static readonly string KeyColumnName = typeof(TModel).GetKeyColumnName();
-    private static readonly string TableName = typeof(TModel).GetTableName();
+    protected static readonly string KeyColumnName = typeof(TModel).GetKeyColumnName();
+    protected static readonly string TableName = typeof(TModel).GetTableName();
+    
     private static readonly string EntityName = typeof(TModel).Name;
     
     private readonly ISqlConnectionFactory connectionFactory;
@@ -26,7 +27,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         this.defaultTimeout = defaultTimeout ?? this.defaultTimeout;
     }
     
-    public async Task<DbQueryResult<Guid>> AddAsync(TModel model, TimeSpan? timeout = null)
+    public virtual async Task<DbQueryResult<Guid>> AddAsync(TModel model, TimeSpan? timeout = null)
     {
         var columns = string.Join(", ", typeof(TModel).GetColumnNames());
         var parameters = string.Join(", ", typeof(TModel).GetParameterNames(withKeys: false));
@@ -67,7 +68,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         }
     }
     
-    public async Task<DbQueryResult<ICollection<TModel>>> SearchAsync(
+    public virtual async Task<DbQueryResult<ICollection<TModel>>> SearchAsync(
         TSearchModel search, 
         int skip = 0,
         int take = int.MaxValue,
@@ -165,7 +166,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         }
     }
     
-    private int GetTimeoutSeconds(TimeSpan? timeout)
+    protected int GetTimeoutSeconds(TimeSpan? timeout)
     {
         return (int)(timeout?.TotalSeconds ?? this.defaultTimeout.TotalSeconds);
     }

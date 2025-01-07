@@ -124,6 +124,7 @@ internal static class SqlExtensions
         bool skipNull)
     {
         return GetProperties(typeof(T))
+            .Where(prop => prop.GetCustomAttribute<IgnoredAttribute>() == null)
             .Where(prop => include(prop) && (!skipNull || prop.GetValue(model) != null))
             .Select(prop =>
             {
