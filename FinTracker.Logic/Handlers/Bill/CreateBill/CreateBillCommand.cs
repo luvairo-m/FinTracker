@@ -5,13 +5,16 @@ namespace FinTracker.Logic.Handlers.Bill.CreateBill;
 
 public class CreateBillCommand : IRequest<CreateBillModel>
 {
-    public CreateBillCommand(string title, decimal amount)
+    public CreateBillCommand(string title, decimal balance, string description)
     {
         Title = title;
-        Amount = amount;
+        Balance = balance;
+        Description = description;
     }
 
     public string Title { get; set; }
 
-    public decimal Amount { get; set; }
+    public decimal Balance { get; set; }
+
+    public string Description { get; set; }
 }

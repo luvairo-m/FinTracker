@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using FinTracker.Logic.Models.Payment.Enums;
+using FinTracker.Dal.Models.Payments;
 
 namespace FinTracker.Api.Controllers.Payment.Dto.Requests;
 
@@ -16,13 +16,19 @@ public record struct UpdatePaymentRequest : IValidatableObject
     public required string Description { get; init; }
     
     [Required]
+    public required decimal Amount { get; init; }
+    
+    [Required]
     public required Guid BillId { get; init; }
 
     [Required]
-    public required decimal Amount { get; init; }
+    public required Guid CurrencyId { get; init; }
 
     [Required]
-    public required FinancialOperation Operation { get; init; }
+    public required Guid CategoryId { get; init; }
+
+    [Required]
+    public required OperationType Type { get; init; }
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

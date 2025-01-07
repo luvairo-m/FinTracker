@@ -11,7 +11,7 @@ public interface IPaymentRepository : IRepository<Payment, PaymentSearch>
 {
     Task<DbQueryResult> UpdateCategoriesAsync(
         Guid paymentId,
-        ICollection<Guid> addCategories,
-        ICollection<Guid> removeCategories,
+        ICollection<Guid> addCategories = null,
+        ICollection<Guid> removeCategories = null,
         TimeSpan? timeout = null);
 }

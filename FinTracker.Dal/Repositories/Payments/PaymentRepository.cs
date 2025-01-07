@@ -124,18 +124,26 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
 
     public async Task<DbQueryResult> UpdateCategoriesAsync(
         Guid paymentId, 
-        ICollection<Guid> addCategories, 
-        ICollection<Guid> removeCategories,
+        ICollection<Guid> addCategories = null, 
+        ICollection<Guid> removeCategories = null,
         TimeSpan? timeout = null)
     {
-        var (categoryInsertScript, updateParameters) = CreateCategoriesInsertScript(addCategories);
+        if ((addCategories == null || addCategories.Count == 0) && (removeCategories == null || removeCategories.Count == 0))
+        {
+            return DbQueryResult.Ok();
+        }
+
+        var (insertPart, updateParameters) = addCategories?.Count > 0
+            ? CreateCategoriesInsertScript(addCategories)
+            : (string.Empty, new Dictionary<string, object>());
         
         updateParameters.Add("Id", paymentId);
         updateParameters.Add("RemoveCategories", removeCategories);
 
-        var updateScript = @$"{categoryInsertScript}
-                              DELETE FROM [dbo].PaymentCategory
-                              WHERE PaymentId = @Id AND CategoryId IN @RemoveCategories";
+        var removePart = removeCategories?.Count > 0
+            ? @"DELETE FROM [dbo].PaymentCategory
+                WHERE PaymentId = @Id AND CategoryId IN @RemoveCategories"
+            : string.Empty;
         
         using var connection = await this.connectionFactory.CreateAsync();
         using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
@@ -146,7 +154,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
             
             var entityId = await connection.ExecuteAsync(
                 new CommandDefinition(
-                    updateScript, 
+                    $"{insertPart}\n{removePart}", 
                     updateParameters,
                     transaction: transaction,
                     commandTimeout: GetTimeoutSeconds(timeout)));
