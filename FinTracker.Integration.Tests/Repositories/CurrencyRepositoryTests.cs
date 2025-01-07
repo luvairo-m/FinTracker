@@ -2,13 +2,12 @@
 using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Currencies;
-using FinTracker.Dal.Repositories.Currencies;
-using FinTracker.Integration.Tests.Utils;
+using FinTracker.Dal.Repositories;
 using FluentAssertions;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
-namespace FinTracker.Integration.Tests.Repositories.Currencies;
+namespace FinTracker.Integration.Tests.Repositories;
 
 [TestFixture]
 public class CurrencyRepositoryTests : RepositoryBaseTests<Currency, CurrencySearch>
@@ -17,16 +16,11 @@ public class CurrencyRepositoryTests : RepositoryBaseTests<Currency, CurrencySea
     
     private static readonly Random random = new();
     
-    public CurrencyRepositoryTests()
-    {
-        this.databaseInitializer = new DatabaseInitializer(
-            TestCredentials.FinTrackerConnectionString,
-            Directory.GetFiles("Scripts/Currencies/Create", "*.sql", SearchOption.AllDirectories),
-            Directory.GetFiles("Scripts/Currencies/Drop", "*.sql", SearchOption.AllDirectories));
-
-        this.repository = new CurrencyRepository(
+    public CurrencyRepositoryTests() 
+        : base(new CurrencyRepository(
             new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString), 
-            new SilentLog());
+            new SilentLog()))
+    {
     }
 
     [Test]
@@ -58,29 +52,16 @@ public class CurrencyRepositoryTests : RepositoryBaseTests<Currency, CurrencySea
         };
     }
 
-    protected override IEnumerable<CurrencySearch> CreateSearchModels(Currency model, bool byIdOnly = false)
+    protected override CurrencySearch CreateSearchModel(Currency model, bool byIdOnly = false)
     {
-        if (byIdOnly)
+        var search = new CurrencySearch { Id = model.Id };
+
+        if (!byIdOnly)
         {
-            yield return new CurrencySearch { Id = model.Id };
-            yield break;
+            search.TitleSubstring = model.Title;
         }
-        
-        yield return new CurrencySearch
-        {
-            Id = model.Id,
-            TitleSubstring = model.Title
-        };
-        
-        yield return new CurrencySearch
-        {
-            Id = model.Id
-        };
-        
-        yield return new CurrencySearch
-        {
-            TitleSubstring = model.Title
-        };
+
+        return search;
     }
 
     protected override Currency ApplyUpdate(Currency model, Currency update)

@@ -1,12 +1,13 @@
 ﻿namespace FinTracker.Dal.Logic.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class ValueTemplateAttribute : Attribute
+public class StringValueTemplateAttribute : Attribute
 {
     public string Template { get; }
 
-    public ValueTemplateAttribute(string template)
+    public StringValueTemplateAttribute(string template)
     {
+        ArgumentNullException.ThrowIfNull(template);
         this.Template = template;
     }
 }

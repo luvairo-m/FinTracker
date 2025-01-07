@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using FinTracker.Dal.Logic.Attributes;
+﻿using FinTracker.Dal.Logic.Attributes;
 
 namespace FinTracker.Dal.Models.Categories;
 
@@ -9,6 +8,6 @@ public class CategorySearch
     public Guid? Id { get; set; }
     
     [Column("Title")]
-    [ValueTemplate("%{0}%")]
+    [StringValueTemplate("%{0}%")]
     public string TitleSubstring { get; set; }
 }
