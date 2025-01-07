@@ -4,16 +4,19 @@ namespace FinTracker.Logic.Handlers.Bill.UpdateBill;
 
 public class UpdateBillCommand : IRequest
 {
-    public UpdateBillCommand(Guid billId, string title, decimal amount)
+    public UpdateBillCommand(Guid billId, string title, decimal balance, string description)
     {
         BillId = billId;
         Title = title;
-        Amount = amount;
+        Balance = balance;
+        Description = description;
     }
     
     public Guid BillId { get; set; }
 
     public string Title { get; set; }
 
-    public decimal Amount { get; set; }
+    public decimal Balance { get; set; }
+
+    public string Description { get; set; }
 }

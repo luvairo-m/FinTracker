@@ -6,5 +6,7 @@ public struct GetBillModel
 
     public string Title { get; set; }
 
-    public int Amount { get; set; }
+    public decimal Balance { get; set; }
+
+    public string Description { get; set; }
 }

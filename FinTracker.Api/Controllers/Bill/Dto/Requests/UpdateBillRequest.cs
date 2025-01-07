@@ -11,5 +11,8 @@ public record struct UpdateBillRequest
     public required string Title { get; init; }
 
     [Required]
-    public required decimal Amount { get; init; }
+    public required decimal Balance { get; init; }
+
+    [MaxLength(1024)]
+    public required string Description { get; init; }
 }
