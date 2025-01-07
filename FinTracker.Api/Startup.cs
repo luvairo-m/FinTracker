@@ -1,9 +1,12 @@
+using System;
+using AutoMapper;
+using FinTracker.Api.Configuration.Swagger;
+using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 
 namespace FinTracker.Api;
 
@@ -19,18 +22,23 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
-        services.AddSwaggerGen(setup =>
-        {
-            setup.SwaggerDoc("v1", new OpenApiInfo { Title = "FinTracker.Api", Version = "v1" });
-        });
+
+        services.AddApiVersioning();
+
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
+        
+        services.AddSwaggerDocumentation();
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMapper mapper)
     {
+        mapper.ConfigurationProvider.AssertConfigurationIsValid();
+        
         if (env.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTracker.Api v1"));
+            app.UseSwaggerDocumentation();
         }
 
         app.UseRouting();
