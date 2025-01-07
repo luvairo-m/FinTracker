@@ -1,11 +1,19 @@
-﻿using MediatR;
+﻿using FinTracker.Dal.Repositories;
+using MediatR;
 
 namespace FinTracker.Logic.Handlers.Category.DeleteCategory;
 
 internal class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
 {
-    public Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+    private readonly CategoryRepository _categoryRepository;
+
+    public DeleteCategoryCommandHandler(CategoryRepository categoryRepository)
     {
-        throw new NotImplementedException();
+        _categoryRepository = categoryRepository;
+    }
+    
+    public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+    {
+        await _categoryRepository.RemoveAsync(request.CategoryId);
     }
 }
