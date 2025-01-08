@@ -2,9 +2,9 @@
 using FinTracker.Dal.Models.Bills;
 using Vostok.Logging.Abstractions;
 
-namespace FinTracker.Dal.Repositories;
+namespace FinTracker.Dal.Repositories.Bills;
 
-public class BillRepository : RepositoryBase<Bill, BillSearch>
+public class BillRepository : RepositoryBase<Bill, BillSearch>, IBillRepository
 {
     public BillRepository(ISqlConnectionFactory connectionFactory, ILog log) 
         : base(connectionFactory, log?.ForContext<BillRepository>())

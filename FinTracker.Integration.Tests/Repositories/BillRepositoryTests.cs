@@ -1,6 +1,6 @@
 ﻿using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Bills;
-using FinTracker.Dal.Repositories;
+using FinTracker.Dal.Repositories.Bills;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
@@ -12,10 +12,10 @@ public class BillRepositoryTests : RepositoryBaseTests<Bill, BillSearch>
     private readonly Random random = new();
 
     public BillRepositoryTests()
-        : base(new BillRepository(
-            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString), 
-            new SilentLog()))
     {
+        this.repository = new BillRepository(
+            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
+            new SilentLog());
     }
     
     protected override Bill CreateModel()

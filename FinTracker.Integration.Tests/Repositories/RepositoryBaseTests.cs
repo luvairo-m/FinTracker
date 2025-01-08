@@ -13,32 +13,14 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel>
     where TModel : IEntity
     where TSearchModel : new()
 {
-    protected readonly RepositoryBase<TModel, TSearchModel> repository;
-    protected readonly DatabaseInitializer databaseInitializer;
-    
     protected readonly List<Guid> currentEntities = new();
+    protected RepositoryBase<TModel, TSearchModel> repository;
 
-    /// <summary>
-    /// Создание databaseInitializer по стандартному правилу.
-    /// </summary>
-    /// <param name="repository"></param>
-    protected RepositoryBaseTests(RepositoryBase<TModel, TSearchModel> repository)
-    {
-        this.databaseInitializer = new DatabaseInitializer(
-            TestCredentials.FinTrackerConnectionString,
-            Directory.GetFiles($"Scripts/{typeof(TModel).Name}/Create", "*.sql", SearchOption.AllDirectories),
-            Directory.GetFiles($"Scripts/{typeof(TModel).Name}/Drop", "*.sql", SearchOption.AllDirectories));
-        
-        this.repository = repository;
-    }
-    
-    /// <summary>
-    /// Для ручной инициализации databaseInitializer и repository.
-    /// </summary>
-    protected RepositoryBaseTests()
-    {
-    }
-    
+    private readonly DatabaseInitializer databaseInitializer = new(
+        TestCredentials.FinTrackerConnectionString,
+        Directory.GetFiles($"Scripts/{typeof(TModel).Name}/Create", "*.sql", SearchOption.AllDirectories),
+        Directory.GetFiles($"Scripts/{typeof(TModel).Name}/Drop", "*.sql", SearchOption.AllDirectories));
+
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
@@ -168,7 +150,7 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel>
     
     protected abstract TModel ApplyUpdate(TModel model, TModel update);
 
-    private async Task<ICollection<TModel>> CreateModelsInRepository(int count)
+    protected async Task<ICollection<TModel>> CreateModelsInRepository(int count)
     {
         var models = new List<TModel>(count);
         

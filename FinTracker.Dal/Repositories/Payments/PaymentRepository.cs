@@ -1,0 +1,226 @@
+﻿using System.Data;
+using System.Text;
+using Dapper;
+using FinTracker.Dal.Logic;
+using FinTracker.Dal.Logic.Connections;
+using FinTracker.Dal.Logic.Extensions;
+using FinTracker.Dal.Models.Payments;
+using Microsoft.Data.SqlClient;
+using Vostok.Logging.Abstractions;
+
+namespace FinTracker.Dal.Repositories.Payments;
+
+public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymentRepository
+{
+    private readonly ISqlConnectionFactory connectionFactory;
+    private readonly ILog log;
+    
+    public PaymentRepository(ISqlConnectionFactory connectionFactory, ILog log) 
+        : base(connectionFactory, log?.ForContext<PaymentRepository>())
+    {
+        this.connectionFactory = connectionFactory;
+        this.log = log;
+    }
+
+    public override async Task<DbQueryResult<Guid>> AddAsync(Payment model, TimeSpan? timeout = null)
+    {
+        var insertParameters = model.ToParametersWithValues();
+        var (categoryInsertScript, categoryParameters) = CreateCategoriesInsertScript(model.Categories);
+
+        // Параметр @Id уже определен в sql-скрипте.
+        insertParameters.Remove("Id");
+        
+        foreach (var (paramName, paramValue) in categoryParameters)
+        {
+            insertParameters.Add(paramName, paramValue);
+        }
+        
+        var insertScript = $@"DECLARE @Id uniqueidentifier;
+                              SET @Id = NEWID();
+
+                              INSERT INTO {TableName} ({string.Join(", ", typeof(Payment).GetColumnNames())})
+                              OUTPUT INSERTED.{KeyColumnName}
+                              VALUES (@Id, {string.Join(", ", typeof(Payment).GetParameterNames(withKeys: false))})
+                              
+                              {categoryInsertScript}";
+        
+        using var connection = await this.connectionFactory.CreateAsync();
+        using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+        
+        try
+        {
+            this.log.Info("Trying to add new Payment to database...");
+            
+            var entityId = await connection.ExecuteScalarAsync<Guid>(
+                new CommandDefinition(
+                    insertScript, 
+                    insertParameters, 
+                    transaction: transaction,
+                    commandTimeout: GetTimeoutSeconds(timeout)));
+
+            transaction.Commit();
+
+            this.log.Info("New Payment (Id: {1}) successfully added!", entityId);
+            
+            return DbQueryResult<Guid>.Ok(entityId);
+        }
+        catch (SqlException sqlException)
+        {
+            const string errorMessage = "Error while adding new Payment to database.";
+            this.log.Error(sqlException, errorMessage);
+            
+            transaction.Rollback();
+            
+            return DbQueryResult<Guid>.Error(errorMessage);
+        }
+    }
+
+    public override async Task<DbQueryResult<ICollection<Payment>>> SearchAsync(
+        PaymentSearch search, 
+        int skip = 0, 
+        int take = int.MaxValue,
+        TimeSpan? timeout = null)
+    {
+        var selectScript = CreateSelectScript(search, skip, take);
+        var selectParameters = search.ToParametersWithValues();
+        
+        selectParameters.Add("CategoryIds", search.Categories);
+    
+        using var connection = await this.connectionFactory.CreateAsync();
+                
+        try
+        { 
+            this.log.Info("Searching for Payments by filter: {1}...", search.ToString());
+            
+            var foundEntities = (await connection.QueryAsync<Payment>(
+                new CommandDefinition(
+                    selectScript, 
+                    selectParameters, 
+                    commandTimeout: GetTimeoutSeconds(timeout)))).AsList();
+
+            foreach (var entity in foundEntities)
+            {
+                entity.Categories = (await connection.QueryAsync<Guid>(
+                    new CommandDefinition(
+                        "SELECT CategoryId FROM [dbo].PaymentCategory WHERE PaymentId = @Id", 
+                        new { entity.Id }, 
+                        commandTimeout: GetTimeoutSeconds(timeout)))).AsList();
+            }
+    
+            this.log.Info("Search operation completed! Found {0} Payments.", foundEntities.Count);
+            
+            return foundEntities.Count == 0
+                ? DbQueryResult<ICollection<Payment>>.NotFound("No Payments found.")
+                : DbQueryResult<ICollection<Payment>>.Ok(foundEntities);
+        }
+        catch (SqlException sqlException)
+        {
+            const string errorMessage = "Error while selecting Payment entities from database.";
+            this.log.Error(sqlException, errorMessage);
+    
+            return DbQueryResult<ICollection<Payment>>.Error(errorMessage);
+        }
+    }
+
+    public async Task<DbQueryResult> UpdateCategoriesAsync(
+        Guid paymentId, 
+        ICollection<Guid> addCategories = null, 
+        ICollection<Guid> removeCategories = null,
+        TimeSpan? timeout = null)
+    {
+        if ((addCategories == null || addCategories.Count == 0) && (removeCategories == null || removeCategories.Count == 0))
+        {
+            return DbQueryResult.Ok();
+        }
+
+        var (insertPart, updateParameters) = addCategories?.Count > 0
+            ? CreateCategoriesInsertScript(addCategories)
+            : (string.Empty, new Dictionary<string, object>());
+        
+        updateParameters.Add("Id", paymentId);
+        updateParameters.Add("RemoveCategories", removeCategories);
+
+        var removePart = removeCategories?.Count > 0
+            ? @"DELETE FROM [dbo].PaymentCategory
+                WHERE PaymentId = @Id AND CategoryId IN @RemoveCategories"
+            : string.Empty;
+        
+        using var connection = await this.connectionFactory.CreateAsync();
+        using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+        
+        try
+        {
+            this.log.Info("Trying to update Payment (Id: {0}) categories...", paymentId);
+            
+            var entityId = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    $"{insertPart}\n{removePart}", 
+                    updateParameters,
+                    transaction: transaction,
+                    commandTimeout: GetTimeoutSeconds(timeout)));
+            
+            transaction.Commit();
+
+            this.log.Info("Payment's (Id: {0}) categories were successfully updated!",  paymentId);
+            
+            return DbQueryResult.Ok();
+        }
+        catch (SqlException sqlException)
+        {
+            const string errorMessage = "Error while updating categories.";
+            this.log.Error(sqlException, errorMessage);
+            
+            transaction.Rollback();
+            
+            return DbQueryResult.Error(errorMessage);
+        }
+    }
+
+    private static string CreateSelectScript(PaymentSearch search, int skip, int take)
+    {
+        var categoriesCondition = search.Categories == null || search.Categories.Count == 0
+            ? string.Empty
+            : @"AND EXISTS (
+                    SELECT * FROM [dbo].PaymentCategory
+                    WHERE PaymentId = @Id AND CategoryId IN @CategoryIds
+                )";
+        
+        var selectScript = @$"SELECT {string.Join(", ", typeof(Payment).GetColumnNames())}
+                              FROM {TableName}
+                              {search.ToWhereExpression()}
+                              {categoriesCondition}
+                              ORDER BY {KeyColumnName} ASC
+                              OFFSET {skip} ROWS
+                              FETCH NEXT {take} ROWS ONLY";
+
+        return selectScript;
+    }
+
+    private static (string script, Dictionary<string, object> parameters) CreateCategoriesInsertScript(ICollection<Guid> categoryIds)
+    {
+        const string template = "categoryId_";
+        
+        var scriptBuilder = new StringBuilder();
+        var parameters = new Dictionary<string, object>();
+        
+        var index = 0;
+
+        if (categoryIds.Count > 0)
+        {
+            scriptBuilder.AppendLine("INSERT INTO [dbo].PaymentCategory (PaymentId, CategoryId) VALUES");
+        }
+        
+        foreach (var id in categoryIds)
+        {
+            var paramName = template + index;
+            var suffix = index == categoryIds.Count - 1 ? string.Empty : ",";
+            
+            scriptBuilder.AppendLine($"(@Id, @{paramName}){suffix}");
+            parameters.Add(paramName, id);
+            
+            index++;
+        }
+        
+        return (scriptBuilder.ToString(), parameters);
+    }
+}

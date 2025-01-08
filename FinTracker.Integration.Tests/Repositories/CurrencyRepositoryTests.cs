@@ -2,7 +2,7 @@
 using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Currencies;
-using FinTracker.Dal.Repositories;
+using FinTracker.Dal.Repositories.Currencies;
 using FluentAssertions;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;
@@ -16,11 +16,11 @@ public class CurrencyRepositoryTests : RepositoryBaseTests<Currency, CurrencySea
     
     private static readonly Random random = new();
     
-    public CurrencyRepositoryTests() 
-        : base(new CurrencyRepository(
-            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString), 
-            new SilentLog()))
+    public CurrencyRepositoryTests()
     {
+        this.repository = new CurrencyRepository(
+            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
+            new SilentLog());
     }
 
     [Test]

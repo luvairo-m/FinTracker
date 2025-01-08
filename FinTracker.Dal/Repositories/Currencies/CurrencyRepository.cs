@@ -2,9 +2,9 @@
 using FinTracker.Dal.Models.Currencies;
 using Vostok.Logging.Abstractions;
 
-namespace FinTracker.Dal.Repositories;
+namespace FinTracker.Dal.Repositories.Currencies;
 
-public class CurrencyRepository : RepositoryBase<Currency, CurrencySearch>
+public class CurrencyRepository : RepositoryBase<Currency, CurrencySearch>, ICurrencyRepository
 {
     public CurrencyRepository(ISqlConnectionFactory connectionFactory, ILog log) 
         : base(connectionFactory, log?.ForContext<CurrencyRepository>())

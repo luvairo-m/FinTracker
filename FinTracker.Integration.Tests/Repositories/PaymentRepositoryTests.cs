@@ -1,6 +1,8 @@
-﻿using FinTracker.Dal.Logic.Connections;
+﻿using FinTracker.Dal.Logic;
+using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Payments;
-using FinTracker.Dal.Repositories;
+using FinTracker.Dal.Repositories.Payments;
+using FluentAssertions;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 
@@ -9,11 +11,39 @@ namespace FinTracker.Integration.Tests.Repositories;
 [TestFixture]
 public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch>
 {
-    public PaymentRepositoryTests() 
-        : base(new PaymentRepository(
-            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString), 
-            new SilentLog()))
+    private readonly IPaymentRepository paymentRepository;
+    
+    public PaymentRepositoryTests()
     {
+        var paymentRepo = new PaymentRepository(
+            new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
+            new SilentLog());
+
+        this.repository = paymentRepo;
+        this.paymentRepository = paymentRepo;
+    }
+
+    [Test]
+    public async Task UpdateCategoriesAsync_Success()
+    {
+        // Arrange
+        var payment = (await this.CreateModelsInRepository(1)).First();
+        var newCategoryId = Guid.NewGuid();
+        
+        // Act
+        var updateResult = await this.paymentRepository.UpdateCategoriesAsync(
+            payment.Id, 
+            addCategories: new List<Guid> { newCategoryId }, 
+            removeCategories: payment.Categories);
+        
+        // Assert
+        updateResult.Status.Should().Be(DbQueryResultStatus.Ok);
+
+        var searchResult = await this.paymentRepository.SearchAsync(new PaymentSearch { Id = payment.Id });
+        searchResult.Status.Should().Be(DbQueryResultStatus.Ok);
+
+        searchResult.Result.Should().HaveCount(1);
+        searchResult.Result.First().Categories.Should().HaveCount(1).And.Contain(newCategoryId);
     }
     
     protected override Payment CreateModel()
@@ -26,7 +56,7 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Type = OperationType.Income,
             Date = DateTime.UtcNow,
             BillId = Guid.NewGuid(),
-            CategoryId = Guid.NewGuid()
+            Categories = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
         };
     }
 
@@ -45,6 +75,7 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             search.MaxAmount = model.Amount;
             search.MinDate = model.Date!.Value.AddDays(-5);
             search.MaxDate = model.Date!.Value.AddDays(5);
+            search.Categories = new List<Guid> { model.Categories.First() };
         }
 
         return search;
@@ -57,13 +88,15 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Id = update.Id,
             Title = update.Title ?? model.Title,
             Description = update.Description ?? model.Description,
-            CategoryId = update.CategoryId ?? model.CategoryId,
             
             // Нельзя обновлять.
             Amount = model.Amount,
             Type = model.Type,
             Date = model.Date,
             BillId = model.BillId,
+            
+            // Обновляется через специальный метод.
+            Categories = model.Categories
         };
     }
 }
