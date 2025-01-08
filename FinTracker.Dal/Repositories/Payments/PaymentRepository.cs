@@ -92,26 +92,38 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         { 
             this.log.Info("Searching for Payments by filter: {1}...", search.ToString());
             
-            var foundEntities = (await connection.QueryAsync<Payment>(
+            var foundPayments = (await connection.QueryAsync<Payment>(
                 new CommandDefinition(
                     selectScript, 
                     selectParameters, 
                     commandTimeout: GetTimeoutSeconds(timeout)))).AsList();
 
-            foreach (var entity in foundEntities)
+            if (foundPayments.Count > 0)
             {
-                entity.Categories = (await connection.QueryAsync<Guid>(
-                    new CommandDefinition(
-                        "SELECT CategoryId FROM [dbo].PaymentCategory WHERE PaymentId = @Id", 
-                        new { entity.Id }, 
-                        commandTimeout: GetTimeoutSeconds(timeout)))).AsList();
+                var paymentToCategories = foundPayments.ToDictionary(pay => pay.Id, _ => new List<Guid>());
+                
+                await connection.QueryAsync<Guid, Guid, Guid>(
+                    "SELECT PaymentId, CategoryId FROM [dbo].PaymentCategory WHERE PaymentId IN @PaymentIds",
+                    (paymentId, categoryId) =>
+                    { 
+                        paymentToCategories[paymentId].Add(categoryId);
+                        return paymentId;
+                    },
+                    new { PaymentIds = foundPayments.Select(pay => pay.Id) },
+                    splitOn: "CategoryId",
+                    commandTimeout: GetTimeoutSeconds(timeout));
+
+                foreach (var payment in foundPayments)
+                {
+                    payment.Categories = paymentToCategories[payment.Id];
+                }
             }
     
-            this.log.Info("Search operation completed! Found {0} Payments.", foundEntities.Count);
+            this.log.Info("Search operation completed! Found {0} Payments.", foundPayments.Count);
             
-            return foundEntities.Count == 0
+            return foundPayments.Count == 0
                 ? DbQueryResult<ICollection<Payment>>.NotFound("No Payments found.")
-                : DbQueryResult<ICollection<Payment>>.Ok(foundEntities);
+                : DbQueryResult<ICollection<Payment>>.Ok(foundPayments);
         }
         catch (SqlException sqlException)
         {
@@ -201,7 +213,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         const string template = "categoryId_";
         
         var scriptBuilder = new StringBuilder();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new Dictionary<string, object>(categoryIds.Count);
         
         var index = 0;
 
