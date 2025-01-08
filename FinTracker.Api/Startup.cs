@@ -1,7 +1,9 @@
 using System;
 using AutoMapper;
 using FinTracker.Api.Configuration.Swagger;
+using FinTracker.Dal.Migrations;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
+using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +26,16 @@ public class Startup
         services.AddControllers();
 
         services.AddApiVersioning();
+
+        services.AddLogging(builder => builder.AddFluentMigratorConsole());
+        
+        services
+            .AddFluentMigratorCore()
+            .ConfigureRunner(
+                configure => configure
+                    .AddSqlServer()
+                    .WithGlobalConnectionString(Configuration.GetConnectionString("FinTracker"))
+                    .ScanIn(typeof(Initial_202501081823).Assembly).For.Migrations());
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         
