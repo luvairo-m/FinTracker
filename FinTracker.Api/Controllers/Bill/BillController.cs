@@ -38,7 +38,8 @@ public class BillController : ControllerBase
         var createdBill = await mediator.Send(new CreateBillCommand(
             title: createBillRequest.Title,
             balance: createBillRequest.Balance,
-            description: createBillRequest.Description));
+            description: createBillRequest.Description,
+            currencyId: createBillRequest.CurrencyId));
         
         var response = mapper.Map<CreateBillResponse>(createdBill);
         
@@ -84,7 +85,8 @@ public class BillController : ControllerBase
             billId: billId,
             title: updateBillRequest.Title,
             balance: updateBillRequest.Balance,
-            description: updateBillRequest.Description));
+            description: updateBillRequest.Description,
+            currencyId: updateBillRequest.CurrencyId));
         
         return Ok();
     }

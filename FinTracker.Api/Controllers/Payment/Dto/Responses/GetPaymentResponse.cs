@@ -15,8 +15,6 @@ public record struct GetPaymentResponse
 
     public required Guid BillId { get; init; }
 
-    public required Guid CurrencyId { get; init; }
-
     public required Guid CategoryId { get; init; }
     
     public required OperationType Type { get; init; }

@@ -40,7 +40,6 @@ public class PaymentController : ControllerBase
             description: createPaymentRequest.Description,
             amount: createPaymentRequest.Amount,
             billId: createPaymentRequest.BillId,
-            currencyId:createPaymentRequest.CurrencyId,
             categoryId:createPaymentRequest.CategoryId,
             type: createPaymentRequest.Type));
         
@@ -90,7 +89,6 @@ public class PaymentController : ControllerBase
             description: updatePaymentRequest.Description,
             amount: updatePaymentRequest.Amount,
             billId: updatePaymentRequest.BillId,
-            currencyId: updatePaymentRequest.CurrencyId,
             categoryId: updatePaymentRequest.CategoryId,
             type: updatePaymentRequest.Type));
         

@@ -1,4 +1,4 @@
-﻿using FinTracker.Dal.Repositories;
+﻿using FinTracker.Dal.Repositories.Categories;
 using MediatR;
 
 namespace FinTracker.Logic.Handlers.Category.DeleteCategory;

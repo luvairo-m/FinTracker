@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FinTracker.Dal.Models.Categories;
 using FinTracker.Dal.Repositories;
+using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Logic.Models.Category;
 using MediatR;
 

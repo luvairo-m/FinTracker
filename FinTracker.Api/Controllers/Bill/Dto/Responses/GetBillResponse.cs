@@ -11,4 +11,6 @@ public record struct GetBillResponse
     public required decimal Balance { get; init; }
     
     public required string Description { get; init; }
+    
+    public required Guid CurrencyId { get; init; }
 }

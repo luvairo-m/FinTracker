@@ -16,19 +16,16 @@ public record struct CreatePaymentRequest : IValidatableObject
     public required string Description { get; init; }
     
     [Required]
-    public required decimal Amount { get; init; }
+    public required decimal? Amount { get; init; }
     
     [Required]
-    public required Guid BillId { get; init; }
+    public required Guid? BillId { get; init; }
 
     [Required]
-    public required Guid CurrencyId { get; init; }
+    public required Guid? CategoryId { get; init; }
 
     [Required]
-    public required Guid CategoryId { get; init; }
-
-    [Required]
-    public required OperationType Type { get; init; }
+    public required OperationType? Type { get; init; }
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

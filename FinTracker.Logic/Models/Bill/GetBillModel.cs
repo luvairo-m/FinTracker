@@ -9,4 +9,6 @@ public struct GetBillModel
     public decimal Balance { get; set; }
 
     public string Description { get; set; }
+
+    public Guid CurrencyId { get; set; }
 }

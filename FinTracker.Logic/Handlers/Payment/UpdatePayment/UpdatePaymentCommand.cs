@@ -6,14 +6,13 @@ namespace FinTracker.Logic.Handlers.Payment.UpdatePayment;
 public class UpdatePaymentCommand : IRequest
 {
     public UpdatePaymentCommand(
-        Guid paymentId, string title, string description, decimal amount, Guid billId, Guid currencyId, Guid categoryId, OperationType type)
+        Guid paymentId, string title, string description, decimal? amount, Guid? billId, Guid? categoryId, OperationType? type)
     {
         PaymentId = paymentId;
         Title = title; 
         Description = description;
         Amount = amount;
         BillId = billId;
-        CurrencyId = currencyId;
         CategoryId = categoryId;
         Type = type;
     }
@@ -24,13 +23,11 @@ public class UpdatePaymentCommand : IRequest
 
     public string Description { get; set; }
     
-    public decimal Amount { get; set; }
+    public decimal? Amount { get; set; }
 
-    public Guid BillId { get; set; }
-
-    public Guid CurrencyId { get; set; }
+    public Guid? BillId { get; set; }
     
-    public Guid CategoryId { get; set; }
+    public Guid? CategoryId { get; set; }
 
-    public OperationType Type { get; set; }
+    public OperationType? Type { get; set; }
 }

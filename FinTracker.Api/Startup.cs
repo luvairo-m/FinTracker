@@ -1,12 +1,14 @@
 using System;
 using AutoMapper;
 using FinTracker.Api.Configuration.Swagger;
+using FinTracker.Dal;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vostok.Logging.Abstractions;
 
 namespace FinTracker.Api;
 
@@ -30,6 +32,10 @@ public class Startup
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         
         services.AddSwaggerDocumentation();
+
+        services.AddDal();
+        
+        services.AddSingleton<ILog>(new CompositeLog());
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMapper mapper)
