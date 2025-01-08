@@ -1,6 +1,7 @@
 ﻿using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Payments;
+using FinTracker.Dal.Repositories;
 using FinTracker.Dal.Repositories.Payments;
 using FluentAssertions;
 using NUnit.Framework;
@@ -15,12 +16,35 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
     
     public PaymentRepositoryTests()
     {
-        var paymentRepo = new PaymentRepository(
+        this.paymentRepository = new PaymentRepository(
             new SqlConnectionFactory(TestCredentials.FinTrackerConnectionString),
             new SilentLog());
 
-        this.repository = paymentRepo;
-        this.paymentRepository = paymentRepo;
+        this.repository = (RepositoryBase<Payment, PaymentSearch>)this.paymentRepository;
+    }
+
+    [Test]
+    public async Task SearchAsync_Categories_Success()
+    {
+        // Arrange
+        var payments = await this.CreateModelsInRepository(2);
+        
+        var payment1 = payments.First();
+        var payment2 = payments.Skip(1).First();
+        
+        // Act
+        var pay1SearchResult = await this.paymentRepository.SearchAsync(new PaymentSearch { Id = payment1.Id });
+        var pay2SearchResult = await this.paymentRepository.SearchAsync(new PaymentSearch { Id = payment2.Id });
+        
+        // Assert
+        pay1SearchResult.Status.Should().Be(DbQueryResultStatus.Ok);
+        pay2SearchResult.Status.Should().Be(DbQueryResultStatus.Ok);
+        
+        pay1SearchResult.Result.Should().HaveCount(1);
+        pay2SearchResult.Result.Should().HaveCount(1);
+        
+        pay1SearchResult.Result.First().Categories.Should().BeEquivalentTo(payment1.Categories);
+        pay2SearchResult.Result.First().Categories.Should().BeEquivalentTo(payment2.Categories);
     }
 
     [Test]
