@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Dapper;
 using FinTracker.Dal.Logic;
+using FinTracker.Infra.Extensions;
 using Microsoft.Data.SqlClient;
 
 namespace FinTracker.Integration.Tests.Utils;
@@ -16,12 +17,12 @@ public class DatabaseInitializer
     {
         this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             
-        if (createTablesPaths == null || createTablesPaths.Length == 0)
+        if (createTablesPaths.IsNullOrEmpty())
         {
             throw new ArgumentNullException(nameof(createTablesPaths));
         }
 
-        if (dropTablesPath == null || dropTablesPath.Length == 0)
+        if (dropTablesPath.IsNullOrEmpty())
         {
             throw new ArgumentNullException(nameof(dropTablesPath));
         }

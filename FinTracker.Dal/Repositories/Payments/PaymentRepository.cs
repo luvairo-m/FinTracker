@@ -5,6 +5,7 @@ using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Logic.Extensions;
 using FinTracker.Dal.Models.Payments;
+using FinTracker.Infra.Extensions;
 using Microsoft.Data.SqlClient;
 using Vostok.Logging.Abstractions;
 
@@ -38,9 +39,9 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         var insertScript = $@"DECLARE @Id uniqueidentifier;
                               SET @Id = NEWID();
 
-                              INSERT INTO {TableName} ({string.Join(", ", typeof(Payment).GetColumnNames())})
+                              INSERT INTO {TableName} ({typeof(Payment).GetColumnNames().AsCommaSeparated()})
                               OUTPUT INSERTED.{KeyColumnName}
-                              VALUES (@Id, {string.Join(", ", typeof(Payment).GetParameterNames(withKeys: false))})
+                              VALUES (@Id, {typeof(Payment).GetParameterNames(withKeys: false).AsCommaSeparated()})
                               
                               {categoryInsertScript}";
         
@@ -140,7 +141,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         ICollection<Guid> removeCategories = null,
         TimeSpan? timeout = null)
     {
-        if ((addCategories == null || addCategories.Count == 0) && (removeCategories == null || removeCategories.Count == 0))
+        if (addCategories.IsNullOrEmpty() && removeCategories.IsNullOrEmpty())
         {
             return DbQueryResult.Ok();
         }
@@ -190,14 +191,14 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
 
     private static string CreateSelectScript(PaymentSearch search, int skip, int take)
     {
-        var categoriesCondition = search.Categories == null || search.Categories.Count == 0
+        var categoriesCondition = search.Categories.IsNullOrEmpty()
             ? string.Empty
             : @"AND EXISTS (
                     SELECT * FROM [dbo].PaymentCategory
                     WHERE PaymentId = @Id AND CategoryId IN @CategoryIds
                 )";
         
-        var selectScript = @$"SELECT {string.Join(", ", typeof(Payment).GetColumnNames())}
+        var selectScript = @$"SELECT {typeof(Payment).GetColumnNames().AsCommaSeparated()}
                               FROM {TableName}
                               {search.ToWhereExpression()}
                               {categoriesCondition}

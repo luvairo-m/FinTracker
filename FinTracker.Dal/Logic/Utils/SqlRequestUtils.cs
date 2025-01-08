@@ -1,4 +1,6 @@
-﻿namespace FinTracker.Dal.Logic.Utils;
+﻿using FinTracker.Infra.Extensions;
+
+namespace FinTracker.Dal.Logic.Utils;
 
 internal static class SqlRequestUtils
 {
@@ -9,6 +11,6 @@ internal static class SqlRequestUtils
     
     public static string BuildSetExpression(ICollection<string> setCollector)
     {
-        return setCollector.Count == 0 ? string.Empty : $"SET {string.Join(", ", setCollector)}";
+        return setCollector.Count == 0 ? string.Empty : $"SET {setCollector.AsCommaSeparated()}";
     }
 }

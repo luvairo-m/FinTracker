@@ -3,6 +3,7 @@ using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Logic.Extensions;
 using FinTracker.Dal.Models.Abstractions;
+using FinTracker.Infra.Extensions;
 using Microsoft.Data.SqlClient;
 using Vostok.Logging.Abstractions;
 
@@ -29,12 +30,9 @@ public abstract class RepositoryBase<TModel, TSearchModel>
     
     public virtual async Task<DbQueryResult<Guid>> AddAsync(TModel model, TimeSpan? timeout = null)
     {
-        var columns = string.Join(", ", typeof(TModel).GetColumnNames());
-        var parameters = string.Join(", ", typeof(TModel).GetParameterNames(withKeys: false));
-        
-        var insertScript = @$"INSERT INTO {TableName} ({columns})
+        var insertScript = @$"INSERT INTO {TableName} ({typeof(TModel).GetColumnNames().AsCommaSeparated()})
                               OUTPUT INSERTED.{KeyColumnName}
-                              VALUES (NEWID(), {parameters})";
+                              VALUES (NEWID(), {typeof(TModel).GetParameterNames(withKeys: false).AsCommaSeparated()})";
         
         using var connection = await this.connectionFactory.CreateAsync();
         
@@ -74,7 +72,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         int take = int.MaxValue,
         TimeSpan? timeout = null)
     {
-        var selectScript = $@"SELECT {string.Join(", ", typeof(TModel).GetColumnNames())}
+        var selectScript = $@"SELECT {typeof(TModel).GetColumnNames().AsCommaSeparated()}
                               FROM {TableName}
                               {search.ToWhereExpression()}
                               ORDER BY {KeyColumnName} ASC

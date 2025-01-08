@@ -17,6 +17,7 @@
   
     <ItemGroup>
       <ProjectReference Include="..\FinTracker.Dal\FinTracker.Dal.csproj" />
+      <ProjectReference Include="..\FinTracker.Infra\FinTracker.Infra.csproj" />
     </ItemGroup>
   
     <ItemGroup>
