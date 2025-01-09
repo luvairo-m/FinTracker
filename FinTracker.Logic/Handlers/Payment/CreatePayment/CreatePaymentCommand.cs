@@ -11,10 +11,10 @@ public class CreatePaymentCommand : IRequest<CreatePaymentModel>
     {
         Title = title; 
         Description = description;
-        Amount = (decimal)amount!;
-        BillId = (Guid)billId!;
-        CategoryId = (Guid)categoryId!;
-        Type = (OperationType)type!;
+        Amount = amount!.Value;
+        BillId = billId!.Value;
+        CategoryId = categoryId!.Value;
+        Type = type!.Value;
     }
     
     public string Title { get; set; }

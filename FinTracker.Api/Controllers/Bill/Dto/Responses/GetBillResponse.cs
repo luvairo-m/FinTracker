@@ -4,7 +4,7 @@ namespace FinTracker.Api.Controllers.Bill.Dto.Responses;
 
 public record struct GetBillResponse
 {
-    public required Guid BillId { get; init; }
+    public required Guid Id { get; init; }
 
     public required string Title { get; init; }
 

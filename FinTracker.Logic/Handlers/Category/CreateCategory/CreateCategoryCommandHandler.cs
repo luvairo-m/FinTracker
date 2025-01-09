@@ -6,24 +6,25 @@ namespace FinTracker.Logic.Handlers.Category.CreateCategory;
 
 internal class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryModel>
 {
-    private readonly CategoryRepository _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public CreateCategoryCommandHandler(CategoryRepository categoryRepository)
+    public CreateCategoryCommandHandler(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
     }
 
     public async Task<CreateCategoryModel> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = new Dal.Models.Categories.Category
+        var newCategory = new Dal.Models.Categories.Category
         {
-            Id = Guid.NewGuid(),
             Title = request.Title,
             Description = request.Description
         };
 
-        var categoryId = await _categoryRepository.AddAsync(category);
+        var addedCategoryResult = await _categoryRepository.AddAsync(newCategory);
+        
+        addedCategoryResult.EnsureSuccess();
 
-        return new CreateCategoryModel { CategoryId = categoryId.Result };
+        return new CreateCategoryModel { CategoryId = addedCategoryResult.Result };
     }
 }

@@ -2,5 +2,5 @@
 
 public struct CreateBillModel
 {
-    public Guid BillId { get; set; }
+    public Guid Id { get; set; }
 }

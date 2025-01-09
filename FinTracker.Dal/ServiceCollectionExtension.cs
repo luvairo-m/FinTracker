@@ -5,7 +5,6 @@ using FinTracker.Dal.Repositories.Currencies;
 using FinTracker.Dal.Repositories.Payments;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Vostok.Logging.Abstractions;
 
 namespace FinTracker.Dal;
 
@@ -13,13 +12,13 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddDal(this IServiceCollection services)
     {
-        services.AddTransient<ISqlConnectionFactory, SqlConnectionFactory>(
+        services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>(
             provider => new SqlConnectionFactory(provider.GetRequiredService<IConfiguration>().GetConnectionString("FinTracker")));
 
-        services.AddTransient<CategoryRepository>();
-        services.AddTransient<BillRepository>();
-        services.AddTransient<CurrencyRepository>();
-        services.AddTransient<PaymentRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBillRepository, BillRepository>();
+        services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         
         return services;
     }

@@ -9,11 +9,9 @@ public class CategoryMapper : Profile
     public CategoryMapper()
     {
         CreateMap<Dal.Models.Categories.Category, GetCategoryModel>();
-
-        CreateMap<ICollection<Dal.Models.Categories.Category>, ICollection<GetCategoryModel>>();
         
         CreateMap<UpdateCategoryCommand, Dal.Models.Categories.Category>()
-            .ForAllMembers(opts =>
-                opts.PreCondition((src, dest, srcMember) => srcMember != null));
+            .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
+            .ForMember(dest => dest.Description, opt => opt.Condition(src => src.Description != null));
     }
 }

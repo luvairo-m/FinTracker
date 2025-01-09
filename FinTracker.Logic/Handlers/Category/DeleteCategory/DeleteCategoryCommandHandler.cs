@@ -5,15 +5,17 @@ namespace FinTracker.Logic.Handlers.Category.DeleteCategory;
 
 internal class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
 {
-    private readonly CategoryRepository _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public DeleteCategoryCommandHandler(CategoryRepository categoryRepository)
+    public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
     }
     
     public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
-        await _categoryRepository.RemoveAsync(request.CategoryId);
+        var deletionCategoryResult = await _categoryRepository.RemoveAsync(request.CategoryId);
+        
+        deletionCategoryResult.EnsureSuccess();
     }
 }

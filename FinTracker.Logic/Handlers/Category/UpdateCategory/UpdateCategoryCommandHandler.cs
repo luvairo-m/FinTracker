@@ -7,10 +7,10 @@ namespace FinTracker.Logic.Handlers.Category.UpdateCategory;
 
 internal class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
 {
-    private readonly CategoryRepository _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
 
-    public UpdateCategoryCommandHandler(CategoryRepository categoryRepository, IMapper mapper)
+    public UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
         _mapper = mapper;
@@ -18,15 +18,17 @@ internal class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComm
 
     public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var searchResult = await _categoryRepository.SearchAsync(new CategorySearch { Id = request.CategoryId });
+        var gettingCategoriesResult = await _categoryRepository.SearchAsync(
+            new CategorySearch { Id = request.Id });
         
-        var existingCategory = searchResult.Result.FirstOrDefault();
+        gettingCategoriesResult.EnsureSuccess();
+        
+        var existingCategory = gettingCategoriesResult.Result.FirstOrDefault();
 
-        if (existingCategory is not null)
-        {
-            var updatedCategory = _mapper.Map(request, existingCategory);
+        var updatedCategory = _mapper.Map(request, existingCategory);
 
-            await _categoryRepository.UpdateAsync(updatedCategory);
-        }
+        var updatingCategoryResult = await _categoryRepository.UpdateAsync(updatedCategory);
+        
+        updatingCategoryResult.EnsureSuccess();
     }
 }

@@ -80,7 +80,7 @@ public class CurrencyController : ControllerBase
     public async Task<IActionResult> UpdateCurrency(Guid currencyId, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
     {
         await mediator.Send(new UpdateCurrencyCommand(
-            currencyId: currencyId,
+            id: currencyId,
             title: updateCurrencyRequest.Title,
             sign: updateCurrencyRequest.Sign));
 

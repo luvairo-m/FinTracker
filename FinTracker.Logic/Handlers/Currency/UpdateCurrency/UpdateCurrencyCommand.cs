@@ -4,16 +4,16 @@ namespace FinTracker.Logic.Handlers.Currency.UpdateCurrency;
 
 public class UpdateCurrencyCommand : IRequest
 {
-    public UpdateCurrencyCommand(Guid currencyId, string title, string sign)
+    public UpdateCurrencyCommand(Guid id, string title, string sign)
     {
-        CurrencyId = currencyId;
+        Id = id;
         Title = title;
         Sign = sign;
     }
     
-    public Guid CurrencyId { get; set; }
+    public Guid Id { get; set; }
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
-    public string Sign { get; set; }
+    public string? Sign { get; set; }
 }

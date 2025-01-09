@@ -8,16 +8,16 @@ public class CreateBillCommand : IRequest<CreateBillModel>
     public CreateBillCommand(string title, decimal? balance, string description, Guid? currencyId)
     {
         Title = title;
-        Balance = (decimal)balance!;
+        Balance = balance!.Value;
         Description = description;
-        CurrencyId = (Guid)currencyId!;
+        CurrencyId = currencyId!.Value;
     }
 
     public string Title { get; set; }
 
-    public decimal? Balance { get; set; }
+    public decimal Balance { get; set; }
 
     public string Description { get; set; }
 
-    public Guid? CurrencyId { get; set; }
+    public Guid CurrencyId { get; set; }
 }

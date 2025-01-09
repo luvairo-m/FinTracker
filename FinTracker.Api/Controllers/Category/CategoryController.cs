@@ -80,7 +80,7 @@ public class CategoryController : ControllerBase
     public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
         await mediator.Send(new UpdateCategoryCommand(
-            categoryId: categoryId, 
+            id: categoryId, 
             title: updateCategoryRequest.Title,
             description: updateCategoryRequest.Description));
         

@@ -9,10 +9,10 @@ namespace FinTracker.Logic.Handlers.Category.GetCategories;
 
 internal class GetCategoriesCommandHandler : IRequestHandler<GetCategoriesCommand, GetCategoriesModel>
 {
-    private readonly CategoryRepository _categoryRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
 
-    public GetCategoriesCommandHandler(CategoryRepository categoryRepository, IMapper mapper)
+    public GetCategoriesCommandHandler(ICategoryRepository categoryRepository, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
         _mapper = mapper;
@@ -20,11 +20,13 @@ internal class GetCategoriesCommandHandler : IRequestHandler<GetCategoriesComman
 
     public async Task<GetCategoriesModel> Handle(GetCategoriesCommand request, CancellationToken cancellationToken)
     {
-        var categories = await _categoryRepository.SearchAsync(new CategorySearch());
+        var gettingCategoriesResult = await _categoryRepository.SearchAsync(new CategorySearch());
 
+        gettingCategoriesResult.EnsureSuccess();
+        
         return new GetCategoriesModel
         {
-            Categories = _mapper.Map<ICollection<GetCategoryModel>>(categories.Result)
+            Categories = _mapper.Map<ICollection<GetCategoryModel>>(gettingCategoriesResult.Result)
         };
     }
 }

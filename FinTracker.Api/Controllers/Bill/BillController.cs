@@ -82,7 +82,7 @@ public class BillController : ControllerBase
     public async Task<IActionResult> UpdateBill([FromRoute] Guid billId, [FromBody] UpdateBillRequest updateBillRequest)
     {
         await mediator.Send(new UpdateBillCommand(
-            billId: billId,
+            id: billId,
             title: updateBillRequest.Title,
             balance: updateBillRequest.Balance,
             description: updateBillRequest.Description,

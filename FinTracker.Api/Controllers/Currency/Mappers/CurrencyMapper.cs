@@ -8,10 +8,10 @@ public class CurrencyMapper : Profile
 {
     public CurrencyMapper()
     {
-        CreateMap<CreateCurrencyResponse, CreateCurrencyModel>();
+        CreateMap<CreateCurrencyModel, CreateCurrencyResponse>();
 
-        CreateMap<GetCurrencyResponse, GetCurrencyModel>();
+        CreateMap<GetCurrencyModel, GetCurrencyResponse>();
 
-        CreateMap<GetCurrenciesResponse, GetCurrenciesModel>();
+        CreateMap<GetCurrenciesModel, GetCurrenciesResponse>();
     }
 }
