@@ -20,7 +20,6 @@ public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyComman
     {
         var gettingCurrenciesResult =
             await _currencyRepository.SearchAsync(new CurrencySearch { Id = request.Id });
-        
         gettingCurrenciesResult.EnsureSuccess();
 
         var existingCurrency = gettingCurrenciesResult.Result.FirstOrDefault(); 
@@ -28,7 +27,6 @@ public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyComman
         var updatedCurrency = _mapper.Map(request, existingCurrency);
         
         var updatingCurrencyResult = await _currencyRepository.UpdateAsync(updatedCurrency);
-        
         updatingCurrencyResult.EnsureSuccess();
     }
 }

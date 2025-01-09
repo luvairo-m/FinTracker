@@ -20,7 +20,6 @@ internal class GetCategoryCommandHandler : IRequestHandler<GetCategoryCommand, G
     public async Task<GetCategoryModel> Handle(GetCategoryCommand request, CancellationToken cancellationToken)
     {
         var gettingCategoriesResult = await _categoryRepository.SearchAsync(new CategorySearch { Id = request.CategoryId });
-
         gettingCategoriesResult.EnsureSuccess();
         
         var category = gettingCategoriesResult.Result.FirstOrDefault();

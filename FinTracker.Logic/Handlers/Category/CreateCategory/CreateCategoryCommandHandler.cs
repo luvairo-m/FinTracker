@@ -22,7 +22,6 @@ internal class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComm
         };
 
         var addedCategoryResult = await _categoryRepository.AddAsync(newCategory);
-        
         addedCategoryResult.EnsureSuccess();
 
         return new CreateCategoryModel { CategoryId = addedCategoryResult.Result };

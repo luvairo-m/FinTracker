@@ -10,8 +10,7 @@ public record struct CreatePaymentRequest : IValidatableObject
     [Required]
     [MaxLength(128)]
     public required string Title { get; init; }
-
-    [Required]
+    
     [MaxLength(1024)]
     public required string Description { get; init; }
     

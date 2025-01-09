@@ -15,7 +15,6 @@ internal class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComm
     public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {
         var deletionCategoryResult = await _categoryRepository.RemoveAsync(request.CategoryId);
-        
         deletionCategoryResult.EnsureSuccess();
     }
 }

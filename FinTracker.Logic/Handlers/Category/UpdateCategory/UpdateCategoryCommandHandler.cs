@@ -20,7 +20,6 @@ internal class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComm
     {
         var gettingCategoriesResult = await _categoryRepository.SearchAsync(
             new CategorySearch { Id = request.Id });
-        
         gettingCategoriesResult.EnsureSuccess();
         
         var existingCategory = gettingCategoriesResult.Result.FirstOrDefault();
@@ -28,7 +27,6 @@ internal class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComm
         var updatedCategory = _mapper.Map(request, existingCategory);
 
         var updatingCategoryResult = await _categoryRepository.UpdateAsync(updatedCategory);
-        
         updatingCategoryResult.EnsureSuccess();
     }
 }

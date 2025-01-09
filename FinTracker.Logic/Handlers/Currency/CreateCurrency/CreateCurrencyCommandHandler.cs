@@ -22,7 +22,6 @@ public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyComman
         };
 
         var creatingCurrencyResult = await _currencyRepository.AddAsync(newCurrency);
-        
         creatingCurrencyResult.EnsureSuccess();
 
         return new CreateCurrencyModel { CurrencyId = creatingCurrencyResult.Result };

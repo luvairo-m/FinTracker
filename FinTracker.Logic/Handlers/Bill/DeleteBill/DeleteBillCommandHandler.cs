@@ -15,7 +15,6 @@ internal class DeleteBillCommandHandler : IRequestHandler<DeleteBillCommand>
     public async Task Handle(DeleteBillCommand request, CancellationToken cancellationToken)
     {
         var deletionBillResult = await _billRepository.RemoveAsync(request.BillId);
-        
         deletionBillResult.EnsureSuccess();
     }
 }

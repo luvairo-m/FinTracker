@@ -20,7 +20,6 @@ internal class GetBillCommandHandler : IRequestHandler<GetBillCommand, GetBillMo
     public async Task<GetBillModel> Handle(GetBillCommand request, CancellationToken cancellationToken)
     {
         var gettingBillsResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
-        
         gettingBillsResult.EnsureSuccess();
         
         var bill = gettingBillsResult.Result.FirstOrDefault();

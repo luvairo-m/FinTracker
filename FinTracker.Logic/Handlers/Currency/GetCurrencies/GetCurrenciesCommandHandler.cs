@@ -20,7 +20,6 @@ public class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand,
     public async Task<GetCurrenciesModel> Handle(GetCurrenciesCommand request, CancellationToken cancellationToken)
     {
         var gettingCategoriesResult = await _currencyRepository.SearchAsync(new CurrencySearch());
-        
         gettingCategoriesResult.EnsureSuccess();
 
         return new GetCurrenciesModel

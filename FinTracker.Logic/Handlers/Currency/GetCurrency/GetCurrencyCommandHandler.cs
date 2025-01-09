@@ -21,7 +21,6 @@ public class GetCurrencyCommandHandler : IRequestHandler<GetCurrencyCommand, Get
     {
         var gettingCurrenciesResult =
             await _currencyRepository.SearchAsync(new CurrencySearch { Id = request.CurrencyId });
-        
         gettingCurrenciesResult.EnsureSuccess();
 
         var currency = gettingCurrenciesResult.Result.FirstOrDefault();

@@ -19,7 +19,6 @@ internal class UpdateBillCommandHandler : IRequestHandler<UpdateBillCommand>
     public async Task Handle(UpdateBillCommand request, CancellationToken cancellationToken)
     {
         var gettingBillsResult = await _billRepository.SearchAsync(new BillSearch { Id = request.Id });
-        
         gettingBillsResult.EnsureSuccess();
         
         var existingBill = gettingBillsResult.Result.FirstOrDefault();
@@ -27,7 +26,6 @@ internal class UpdateBillCommandHandler : IRequestHandler<UpdateBillCommand>
         var updatedBill = _mapper.Map(request, existingBill);
         
         var updateBillResult = await _billRepository.UpdateAsync(updatedBill);
-        
         updateBillResult.EnsureSuccess();
     }
 }

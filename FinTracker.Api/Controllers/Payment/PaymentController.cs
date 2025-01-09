@@ -67,9 +67,17 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayments()
+    public async Task<IActionResult> GetPayments([FromBody] GetPaymentsRequest getPaymentsRequest)
     {
-        var payments = await mediator.Send(new GetPaymentsCommand());
+        var payments = await mediator.Send(new GetPaymentsCommand(
+            minAmount: getPaymentsRequest.MinAmount,
+            maxAmount: getPaymentsRequest.MaxAmount,
+            types: getPaymentsRequest.Types,
+            minDate: getPaymentsRequest.MinDate,
+            maxDate: getPaymentsRequest.MaxDate,
+            months: getPaymentsRequest.Months,
+            years: getPaymentsRequest.Years,
+            billId: getPaymentsRequest.BillId));
         
         var response = mapper.Map<GetPaymentsResponse>(payments);
 
@@ -84,12 +92,11 @@ public class PaymentController : ControllerBase
     public async Task<IActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
         await mediator.Send(new UpdatePaymentCommand(
-            paymentId: paymentId,
+            id: paymentId,
             title: updatePaymentRequest.Title,
             description: updatePaymentRequest.Description,
             amount: updatePaymentRequest.Amount,
             billId: updatePaymentRequest.BillId,
-            categoryId: updatePaymentRequest.CategoryId,
             type: updatePaymentRequest.Type));
         
         return Ok();

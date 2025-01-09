@@ -24,7 +24,6 @@ internal class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, Cre
         };
         
         var creatingBillResult = await _billRepository.AddAsync(newBill);
-        
         creatingBillResult.EnsureSuccess();
 
         return new CreateBillModel { Id = creatingBillResult.Result };

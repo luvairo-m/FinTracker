@@ -1,11 +1,20 @@
-﻿using MediatR;
+﻿using FinTracker.Dal.Repositories.Payments;
+using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.DeletePayment;
 
 internal class DeletePaymentCommandHandler : IRequestHandler<DeletePaymentCommand>
 {
-    public Task Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
+    private readonly IPaymentRepository _paymentRepository;
+
+    public DeletePaymentCommandHandler(IPaymentRepository paymentRepository)
     {
-        throw new NotImplementedException();
+        _paymentRepository = paymentRepository;
+    }
+
+    public async Task Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
+    {
+        var deletionPaymentResult = await _paymentRepository.RemoveAsync(request.PaymentId);
+        deletionPaymentResult.EnsureSuccess();
     }
 }
