@@ -3,6 +3,7 @@ using FinTracker.Dal.Logic;
 using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Logic.Extensions;
 using FinTracker.Dal.Models.Abstractions;
+using FinTracker.Infra.Extensions;
 using Microsoft.Data.SqlClient;
 using Vostok.Logging.Abstractions;
 
@@ -29,12 +30,9 @@ public abstract class RepositoryBase<TModel, TSearchModel>
     
     public virtual async Task<DbQueryResult<Guid>> AddAsync(TModel model, TimeSpan? timeout = null)
     {
-        var columns = string.Join(", ", typeof(TModel).GetColumnNames());
-        var parameters = string.Join(", ", typeof(TModel).GetParameterNames(withKeys: false));
-        
-        var insertScript = @$"INSERT INTO {TableName} ({columns})
+        var insertScript = @$"INSERT INTO {TableName} ({typeof(TModel).GetColumnNames().AsCommaSeparated()})
                               OUTPUT INSERTED.{KeyColumnName}
-                              VALUES (NEWID(), {parameters})";
+                              VALUES (NEWID(), {typeof(TModel).GetParameterNames(withKeys: false).AsCommaSeparated()})";
         
         using var connection = await this.connectionFactory.CreateAsync();
         
@@ -74,7 +72,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         int take = int.MaxValue,
         TimeSpan? timeout = null)
     {
-        var selectScript = $@"SELECT {string.Join(", ", typeof(TModel).GetColumnNames())}
+        var selectScript = $@"SELECT {typeof(TModel).GetColumnNames().AsCommaSeparated()}
                               FROM {TableName}
                               {search.ToWhereExpression()}
                               ORDER BY {KeyColumnName} ASC
@@ -118,15 +116,22 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         { 
             this.log.Info("Trying to update {0} (Id: {1})...", EntityName, update.Id);
 
-            await connection.ExecuteAsync(
+            var updatedCount = await connection.ExecuteAsync(
                 new CommandDefinition(
                     updateScript, 
                     update, 
                     commandTimeout: GetTimeoutSeconds(timeout)));
 
-            this.log.Info("{0} successfully updated!", EntityName);
+            if (updatedCount != 0)
+            {
+                this.log.Info("{0} (Id: {1}) was successfully updated!", EntityName, update.Id);
+                
+                return DbQueryResult.Ok();
+            }
             
-            return DbQueryResult.Ok();
+            this.log.Warn("Not entities were found and updated (specified Id: {0}).", update.Id);
+
+            return DbQueryResult.NotFound("No entities updated.");
         }
         catch (SqlException sqlException)
         {
@@ -147,15 +152,22 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         { 
             this.log.Info("Trying to remove {0} (Id: {1}) from database...", EntityName, id);
             
-            await connection.ExecuteAsync(
+            var removedCount = await connection.ExecuteAsync(
                 new CommandDefinition(
                     removeScript, 
                     new { Id = id }, 
                     commandTimeout: GetTimeoutSeconds(timeout)));
-            
-            this.log.Info("Successfully removed {0} (Id: {1})!", EntityName, id);
 
-            return DbQueryResult.Ok();
+            if (removedCount != 0)
+            {
+                this.log.Info("Successfully removed {0} (Id: {1})!", EntityName, id);
+                
+                return DbQueryResult.Ok();
+            }
+            
+            this.log.Warn("No entities were found and removed (specified Id: {0}).", id);
+
+            return DbQueryResult.NotFound("No entities removed.");
         }
         catch (SqlException sqlException)
         {

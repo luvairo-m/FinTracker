@@ -16,4 +16,8 @@
       <PackageReference Include="Vostok.Logging.Abstractions" Version="1.0.33" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FinTracker.Infra\FinTracker.Infra.csproj" />
+    </ItemGroup>
+
 </Project>

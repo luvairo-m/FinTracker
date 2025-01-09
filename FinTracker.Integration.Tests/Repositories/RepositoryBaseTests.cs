@@ -44,8 +44,7 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel>
     {
         foreach (var entityId in this.currentEntities)
         {
-            var removeResult = await this.repository.RemoveAsync(entityId);
-            removeResult.EnsureSuccess();
+            await this.repository.RemoveAsync(entityId);
         }
     }
 
@@ -120,6 +119,19 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel>
         fullSearchResult.Status.Should().Be(DbQueryResultStatus.Ok);
         fullSearchResult.Result.Count.Should().Be(modelsCount - 1);
     }
+    
+    [Test]
+    public async Task RemoveAsync_NotFound()
+    {
+        // Arrange
+        var model = this.CreateModel();
+
+        // Act
+        var removeResult = await this.repository.RemoveAsync(model.Id);
+
+        // Assert
+        removeResult.Status.Should().Be(DbQueryResultStatus.NotFound);
+    }
 
     [Test]
     public async Task UpdateAsync_Success()
@@ -142,6 +154,19 @@ public abstract class RepositoryBaseTests<TModel, TSearchModel>
 
         searchResult.Result.Should().HaveCount(1);
         searchResult.Result.First().Should().BeEquivalentTo(this.ApplyUpdate(model, updateModel));
+    }
+    
+    [Test]
+    public async Task UpdateAsync_NotFound()
+    {
+        // Arrange
+        var model = this.CreateModel();
+        
+        // Act
+        var updateResult = await this.repository.UpdateAsync(model);
+
+        // Assert
+        updateResult.Status.Should().Be(DbQueryResultStatus.NotFound);
     }
     
     protected abstract TModel CreateModel();
