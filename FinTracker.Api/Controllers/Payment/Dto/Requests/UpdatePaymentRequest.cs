@@ -13,16 +13,12 @@ public record struct UpdatePaymentRequest : IValidatableObject
     [MaxLength(1024)]
     public required string Description { get; init; }
     
-    [Required]
     public required decimal? Amount { get; init; }
     
-    [Required]
     public required Guid? BillId { get; init; }
-
-    [Required]
+    
     public required Guid? CategoryId { get; init; }
-
-    [Required]
+    
     public required OperationType? Type { get; init; }
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

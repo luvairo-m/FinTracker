@@ -22,24 +22,98 @@ internal class UpdatePaymentCommandHandler : IRequestHandler<UpdatePaymentComman
 
     public async Task Handle(UpdatePaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingBillResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
-        gettingBillResult.EnsureSuccess();
+        var gettingPaymentResult = await _paymentRepository.SearchAsync(new PaymentSearch { Id = request.Id });
+        gettingPaymentResult.EnsureSuccess();
 
-        var bill = gettingBillResult.Result.FirstOrDefault();
+        var payment = gettingPaymentResult.Result.FirstOrDefault();
+        
+        var gettingCurrentBillResult = await _billRepository.SearchAsync(new BillSearch { Id = payment?.BillId });
+        gettingCurrentBillResult.EnsureSuccess();
+        
+        var currentBill = gettingCurrentBillResult.Result.FirstOrDefault();
+        
+        var updatedPayment = _mapper.Map<Dal.Models.Payments.Payment>(request);
 
-        if (request.Amount.HasValue && bill!.Balance < request.Amount)
+        if (!request.BillId.HasValue && request.Amount.HasValue)
         {
-            throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
+            if (currentBill!.Balance < request.Amount)
+            {
+                throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
+            }
+            
+            var updatingPaymentResult = await _paymentRepository.UpdateAsync(updatedPayment);
+            updatingPaymentResult.EnsureSuccess();
+            
+            currentBill.Balance = payment.Type == OperationType.Outcome
+                ? currentBill.Balance - payment.Amount 
+                : currentBill.Balance + payment.Amount;
+            
+            var updatedBillResult = await _billRepository.UpdateAsync(currentBill);
+            updatedBillResult.EnsureSuccess();
         }
 
-        var updatedPayment = _mapper.Map<Dal.Models.Payments.Payment>(request);
-        
-        var updatingPaymentResult = await _paymentRepository.UpdateAsync(updatedPayment);
-        updatingPaymentResult.EnsureSuccess();
-        
-        bill!.Balance -= request.Amount;
-        
-        var updatedBillResult = await _billRepository.UpdateAsync(bill);
-        updatedBillResult.EnsureSuccess();
+        if (request.BillId.HasValue && !request.Amount.HasValue)
+        {
+            var gettingNewBillResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
+            gettingNewBillResult.EnsureSuccess();
+            
+            var newBill = gettingNewBillResult.Result.FirstOrDefault();
+
+            if (newBill!.Balance < payment!.Amount)
+            {
+                throw new ForbiddenOperation(
+                    $"Insufficient funds in the account with title '{newBill.Title}' to update the payment.");
+            }
+            
+            var updatingPaymentResult = await _paymentRepository.UpdateAsync(updatedPayment);
+            updatingPaymentResult.EnsureSuccess();
+            
+            currentBill!.Balance = payment.Type == OperationType.Outcome 
+                ? currentBill.Balance + payment.Amount 
+                : currentBill.Balance - payment.Amount;
+            
+            var updatedCurrentBillResult = await _billRepository.UpdateAsync(currentBill);
+            updatedCurrentBillResult.EnsureSuccess();
+            
+            newBill.Balance = payment.Type == OperationType.Outcome 
+                ? newBill.Balance - payment.Amount 
+                : newBill.Balance + payment.Amount;;
+            
+            var updatedNewBillResult = await _billRepository.UpdateAsync(newBill);
+            updatedNewBillResult.EnsureSuccess();
+        }
+
+        if (request.BillId.HasValue && request.Amount.HasValue)
+        {
+            var gettingNewBillResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
+            gettingNewBillResult.EnsureSuccess();
+            
+            var newBill = gettingNewBillResult.Result.FirstOrDefault();
+
+            if (newBill!.Balance < payment!.Amount)
+            {
+                throw new ForbiddenOperation(
+                    $"Insufficient funds in the account with title '{newBill.Title}' to update the payment.");
+            }
+            
+            var updatingPaymentResult = await _paymentRepository.UpdateAsync(updatedPayment);
+            updatingPaymentResult.EnsureSuccess();
+            
+            var differenceBetweenAmount = Math.Abs((decimal)(payment.Amount - (decimal)request.Amount)!);
+            
+            currentBill!.Balance = payment.Type == OperationType.Outcome 
+                ? currentBill.Balance + differenceBetweenAmount 
+                : currentBill.Balance - differenceBetweenAmount;
+            
+            var updatedCurrentBillResult = await _billRepository.UpdateAsync(currentBill);
+            updatedCurrentBillResult.EnsureSuccess();
+            
+            newBill.Balance = payment.Type == OperationType.Outcome 
+                ? newBill.Balance - differenceBetweenAmount
+                : newBill.Balance + differenceBetweenAmount;
+            
+            var updatedNewBillResult = await _billRepository.UpdateAsync(newBill);
+            updatedNewBillResult.EnsureSuccess();
+        }
     }
 }

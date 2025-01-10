@@ -36,7 +36,6 @@ public class Payment : IEntity
     /// Сумма платежа.
     /// </summary>
     [Logic.Attributes.Column("Amount")]
-    [ReadOnly(isReadOnly: true)]
     public decimal? Amount { get; set; }
     
     /// <summary>
@@ -58,7 +57,6 @@ public class Payment : IEntity
     /// Идентификатор счета платежа.
     /// </summary>
     [Logic.Attributes.Column("BillId")]
-    [ReadOnly(isReadOnly: true)]
     public Guid? BillId { get; set; }
     
     /// <summary>
