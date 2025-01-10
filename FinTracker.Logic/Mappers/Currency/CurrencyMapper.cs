@@ -10,8 +10,6 @@ public class CurrencyMapper : Profile
     {
         CreateMap<Dal.Models.Currencies.Currency, GetCurrencyModel>();
         
-        CreateMap<UpdateCurrencyCommand, Dal.Models.Currencies.Currency>()
-            .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
-            .ForMember(dest => dest.Sign, opt => opt.Condition(src => src.Sign != null));
+        CreateMap<UpdateCurrencyCommand, Dal.Models.Currencies.Currency>();
     }
 }

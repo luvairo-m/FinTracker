@@ -10,8 +10,6 @@ public class CategoryMapper : Profile
     {
         CreateMap<Dal.Models.Categories.Category, GetCategoryModel>();
         
-        CreateMap<UpdateCategoryCommand, Dal.Models.Categories.Category>()
-            .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
-            .ForMember(dest => dest.Description, opt => opt.Condition(src => src.Description != null));
+        CreateMap<UpdateCategoryCommand, Dal.Models.Categories.Category>();
     }
 }

@@ -18,15 +18,9 @@ internal class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComm
 
     public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var gettingCategoriesResult = await _categoryRepository.SearchAsync(
-            new CategorySearch { Id = request.Id });
-        gettingCategoriesResult.EnsureSuccess();
-        
-        var existingCategory = gettingCategoriesResult.Result.FirstOrDefault();
+        var category = _mapper.Map<Dal.Models.Categories.Category>(request);
 
-        var updatedCategory = _mapper.Map(request, existingCategory);
-
-        var updatingCategoryResult = await _categoryRepository.UpdateAsync(updatedCategory);
+        var updatingCategoryResult = await _categoryRepository.UpdateAsync(category);
         updatingCategoryResult.EnsureSuccess();
     }
 }

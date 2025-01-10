@@ -28,15 +28,21 @@ internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentComman
             Date = DateTime.UtcNow,
             BillId = request.BillId
         };
-
-        var addedPaymentResult = await _paymentRepository.AddAsync(newPayment);
-        addedPaymentResult.EnsureSuccess();
-
+        
         var gettingBillResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
         gettingBillResult.EnsureSuccess();
 
         var bill = gettingBillResult.Result.FirstOrDefault();
-        bill!.Balance -= request.Amount;
+
+        if (bill!.Balance < request.Amount)
+        {
+            throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
+        }
+        
+        var addedPaymentResult = await _paymentRepository.AddAsync(newPayment);
+        addedPaymentResult.EnsureSuccess();
+        
+        bill.Balance -= request.Amount;
         
         var updatedBillResult = await _billRepository.UpdateAsync(bill);
         updatedBillResult.EnsureSuccess();

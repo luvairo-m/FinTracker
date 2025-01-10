@@ -18,13 +18,7 @@ public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyComman
 
     public async Task Handle(UpdateCurrencyCommand request, CancellationToken cancellationToken)
     {
-        var gettingCurrenciesResult =
-            await _currencyRepository.SearchAsync(new CurrencySearch { Id = request.Id });
-        gettingCurrenciesResult.EnsureSuccess();
-
-        var existingCurrency = gettingCurrenciesResult.Result.FirstOrDefault(); 
-        
-        var updatedCurrency = _mapper.Map(request, existingCurrency);
+        var updatedCurrency = _mapper.Map<Dal.Models.Currencies.Currency>(request);
         
         var updatingCurrencyResult = await _currencyRepository.UpdateAsync(updatedCurrency);
         updatingCurrencyResult.EnsureSuccess();
