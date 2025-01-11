@@ -6,11 +6,11 @@ namespace FinTracker.Logic.Handlers.Bill.CreateBill;
 
 internal class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, CreateBillModel>
 {
-    private readonly IBillRepository _billRepository;
+    private readonly IBillRepository billRepository;
 
     public CreateBillCommandHandler(IBillRepository billRepository)
     {
-        _billRepository = billRepository;
+        this.billRepository = billRepository;
     }
 
     public async Task<CreateBillModel> Handle(CreateBillCommand request, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ internal class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, Cre
             CurrencyId = request.CurrencyId
         };
         
-        var creatingBillResult = await _billRepository.AddAsync(newBill);
+        var creatingBillResult = await billRepository.AddAsync(newBill);
         creatingBillResult.EnsureSuccess();
 
         return new CreateBillModel { Id = creatingBillResult.Result };

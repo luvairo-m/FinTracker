@@ -8,22 +8,22 @@ namespace FinTracker.Logic.Handlers.Payment.GetPayment;
 
 internal class GetPaymentCommandHandler : IRequestHandler<GetPaymentCommand, GetPaymentModel>
 {
-    private readonly IPaymentRepository _paymentRepository;
-    private readonly IMapper _mapper;
+    private readonly IPaymentRepository paymentRepository;
+    private readonly IMapper mapper;
 
     public GetPaymentCommandHandler(IPaymentRepository paymentRepository, IMapper mapper)
     {
-        _paymentRepository = paymentRepository;
-        _mapper = mapper;
+        this.paymentRepository = paymentRepository;
+        this.mapper = mapper;
     }
 
     public async Task<GetPaymentModel> Handle(GetPaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentsResult = await _paymentRepository.SearchAsync(new PaymentSearch { Id = request.PaymentId });
+        var gettingPaymentsResult = await paymentRepository.SearchAsync(new PaymentSearch { Id = request.PaymentId });
         gettingPaymentsResult.EnsureSuccess();
         
         var payment = gettingPaymentsResult.Result.FirstOrDefault();
         
-        return _mapper.Map<GetPaymentModel>(payment);
+        return mapper.Map<GetPaymentModel>(payment);
     }
 }

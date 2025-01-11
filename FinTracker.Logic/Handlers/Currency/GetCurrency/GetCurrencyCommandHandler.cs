@@ -8,23 +8,23 @@ namespace FinTracker.Logic.Handlers.Currency.GetCurrency;
 
 public class GetCurrencyCommandHandler : IRequestHandler<GetCurrencyCommand, GetCurrencyModel>
 {
-    private readonly ICurrencyRepository _currencyRepository;
-    private readonly IMapper _mapper;
+    private readonly ICurrencyRepository currencyRepository;
+    private readonly IMapper mapper;
 
     public GetCurrencyCommandHandler(ICurrencyRepository currencyRepository, IMapper mapper)
     {
-        _currencyRepository = currencyRepository;
-        _mapper = mapper;
+        this.currencyRepository = currencyRepository;
+        this.mapper = mapper;
     }
 
     public async Task<GetCurrencyModel> Handle(GetCurrencyCommand request, CancellationToken cancellationToken)
     {
         var gettingCurrenciesResult =
-            await _currencyRepository.SearchAsync(new CurrencySearch { Id = request.CurrencyId });
+            await currencyRepository.SearchAsync(new CurrencySearch { Id = request.CurrencyId });
         gettingCurrenciesResult.EnsureSuccess();
 
         var currency = gettingCurrenciesResult.Result.FirstOrDefault();
         
-        return _mapper.Map<GetCurrencyModel>(currency);
+        return mapper.Map<GetCurrencyModel>(currency);
     }
 }

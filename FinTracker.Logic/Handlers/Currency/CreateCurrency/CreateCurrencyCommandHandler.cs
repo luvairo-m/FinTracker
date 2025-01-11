@@ -6,11 +6,11 @@ namespace FinTracker.Logic.Handlers.Currency.CreateCurrency;
 
 public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyCommand, CreateCurrencyModel>
 {
-    private readonly ICurrencyRepository _currencyRepository;
+    private readonly ICurrencyRepository currencyRepository;
 
     public CreateCurrencyCommandHandler(ICurrencyRepository currencyRepository)
     {
-        _currencyRepository = currencyRepository;
+        this.currencyRepository = currencyRepository;
     }
 
     public async Task<CreateCurrencyModel> Handle(CreateCurrencyCommand request, CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyComman
             Sign = request.Sign
         };
 
-        var creatingCurrencyResult = await _currencyRepository.AddAsync(newCurrency);
+        var creatingCurrencyResult = await currencyRepository.AddAsync(newCurrency);
         creatingCurrencyResult.EnsureSuccess();
 
         return new CreateCurrencyModel { CurrencyId = creatingCurrencyResult.Result };

@@ -1,9 +1,7 @@
-using System;
 using AutoMapper;
 using FinTracker.Api.Configuration.Middleware;
 using FinTracker.Api.Configuration.Swagger;
 using FinTracker.Api.Controllers.Category.Mappers;
-using FinTracker.Api.Controllers.Currency.Mappers;
 using FinTracker.Dal.Migrations;
 using FinTracker.Dal;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
@@ -15,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
-using CategoryMapper = FinTracker.Logic.Mappers.Category.CategoryMapper;
 
 namespace FinTracker.Api;
 
@@ -44,7 +41,7 @@ public class Startup
                     .WithGlobalConnectionString(Configuration.GetConnectionString("FinTracker"))
                     .ScanIn(typeof(Initial_202501081823).Assembly).For.Migrations());
 
-        services.AddAutoMapper(typeof(CategoryMapper), typeof(CurrencyMapper));
+        services.AddAutoMapper(typeof(CategoryMapper));
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         

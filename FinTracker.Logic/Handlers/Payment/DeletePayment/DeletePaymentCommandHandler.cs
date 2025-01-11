@@ -5,16 +5,16 @@ namespace FinTracker.Logic.Handlers.Payment.DeletePayment;
 
 internal class DeletePaymentCommandHandler : IRequestHandler<DeletePaymentCommand>
 {
-    private readonly IPaymentRepository _paymentRepository;
+    private readonly IPaymentRepository paymentRepository;
 
     public DeletePaymentCommandHandler(IPaymentRepository paymentRepository)
     {
-        _paymentRepository = paymentRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public async Task Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
     {
-        var deletionPaymentResult = await _paymentRepository.RemoveAsync(request.PaymentId);
+        var deletionPaymentResult = await paymentRepository.RemoveAsync(request.PaymentId);
         deletionPaymentResult.EnsureSuccess();
     }
 }

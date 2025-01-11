@@ -1,6 +1,4 @@
-﻿using FinTracker.Dal.Logic;
-using FinTracker.Dal.Logic.Attributes;
-using FinTracker.Dal.Models.Payments;
+﻿using FinTracker.Dal.Models.Payments;
 using FinTracker.Logic.Models.Payment;
 using MediatR;
 

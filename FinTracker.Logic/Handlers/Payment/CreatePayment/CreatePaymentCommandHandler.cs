@@ -8,13 +8,13 @@ namespace FinTracker.Logic.Handlers.Payment.CreatePayment;
 
 internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, CreatePaymentModel>
 {
-    private readonly IPaymentRepository _paymentRepository;
-    private readonly IBillRepository _billRepository;
+    private readonly IPaymentRepository paymentRepository;
+    private readonly IBillRepository billRepository;
 
     public CreatePaymentCommandHandler(IPaymentRepository paymentRepository, IBillRepository billRepository)
     {
-        _paymentRepository = paymentRepository;
-        _billRepository = billRepository;
+        this.paymentRepository = paymentRepository;
+        this.billRepository = billRepository;
     }
 
     public async Task<CreatePaymentModel> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentComman
             BillId = request.BillId
         };
         
-        var gettingBillResult = await _billRepository.SearchAsync(new BillSearch { Id = request.BillId });
+        var gettingBillResult = await billRepository.SearchAsync(new BillSearch { Id = request.BillId });
         gettingBillResult.EnsureSuccess();
 
         var bill = gettingBillResult.Result.FirstOrDefault();
@@ -39,12 +39,12 @@ internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentComman
             throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
         }
         
-        var addedPaymentResult = await _paymentRepository.AddAsync(newPayment);
+        var addedPaymentResult = await paymentRepository.AddAsync(newPayment);
         addedPaymentResult.EnsureSuccess();
         
         bill.Balance -= request.Amount;
         
-        var updatedBillResult = await _billRepository.UpdateAsync(bill);
+        var updatedBillResult = await billRepository.UpdateAsync(bill);
         updatedBillResult.EnsureSuccess();
 
         return new CreatePaymentModel { PaymentId = addedPaymentResult.Result };

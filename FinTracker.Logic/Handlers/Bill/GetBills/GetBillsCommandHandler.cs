@@ -8,23 +8,23 @@ namespace FinTracker.Logic.Handlers.Bill.GetBills;
 
 internal class GetBillsCommandHandler : IRequestHandler<GetBillsCommand, GetBillsModel>
 {
-    private readonly IBillRepository _billRepository;
-    private readonly IMapper _mapper;
+    private readonly IBillRepository billRepository;
+    private readonly IMapper mapper;
 
     public GetBillsCommandHandler(IBillRepository billRepository, IMapper mapper)
     {
-        _billRepository = billRepository;
-        _mapper = mapper;
+        this.billRepository = billRepository;
+        this.mapper = mapper;
     }
 
     public async Task<GetBillsModel> Handle(GetBillsCommand request, CancellationToken cancellationToken)
     {
-        var gettingBillsResult = await _billRepository.SearchAsync(new BillSearch());
+        var gettingBillsResult = await billRepository.SearchAsync(new BillSearch());
         gettingBillsResult.EnsureSuccess();
 
         return new GetBillsModel
         {
-            Bills = _mapper.Map<ICollection<GetBillModel>>(gettingBillsResult.Result)
+            Bills = mapper.Map<ICollection<GetBillModel>>(gettingBillsResult.Result)
         };
     }
 }
