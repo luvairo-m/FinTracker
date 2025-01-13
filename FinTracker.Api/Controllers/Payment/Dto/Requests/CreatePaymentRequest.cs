@@ -5,30 +5,26 @@ using FinTracker.Dal.Models.Payments;
 
 namespace FinTracker.Api.Controllers.Payment.Dto.Requests;
 
-public record struct CreatePaymentRequest : IValidatableObject
+public class CreatePaymentRequest : IValidatableObject
 {
     [Required]
     [MaxLength(128)]
-    public required string Title { get; init; }
-
-    [Required]
+    public string Title { get; init; }
+    
     [MaxLength(1024)]
-    public required string Description { get; init; }
+    public string Description { get; init; }
     
     [Required]
-    public required decimal Amount { get; init; }
+    public decimal? Amount { get; init; }
     
     [Required]
-    public required Guid BillId { get; init; }
+    public Guid? BillId { get; init; }
 
     [Required]
-    public required Guid CurrencyId { get; init; }
+    public Guid? CategoryId { get; init; }
 
     [Required]
-    public required Guid CategoryId { get; init; }
-
-    [Required]
-    public required OperationType Type { get; init; }
+    public OperationType? Type { get; init; }
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

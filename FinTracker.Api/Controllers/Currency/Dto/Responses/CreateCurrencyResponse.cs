@@ -2,7 +2,7 @@
 
 namespace FinTracker.Api.Controllers.Currency.Dto.Responses;
 
-public record struct CreateCurrencyResponse
+public class CreateCurrencyResponse
 {
-    public required Guid CurrencyId { get; init; }
+    public Guid CurrencyId { get; init; }
 }

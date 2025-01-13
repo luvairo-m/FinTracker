@@ -2,7 +2,7 @@
 
 namespace FinTracker.Api.Controllers.Bill.Dto.Responses;
 
-public record struct CreateBillResponse
+public class CreateBillResponse
 {
-    public required Guid BillId { get; init; }
+    public Guid Id { get; init; }
 }

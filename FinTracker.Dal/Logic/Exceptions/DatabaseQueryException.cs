@@ -1,6 +1,8 @@
-﻿namespace FinTracker.Dal.Logic.Exceptions;
+﻿using FinTracker.Infra.Exceptions;
 
-public class DatabaseQueryException : Exception
+namespace FinTracker.Dal.Logic.Exceptions;
+
+public class DatabaseQueryException : CustomException
 {
     public DatabaseQueryException(string message)
         : base(message)

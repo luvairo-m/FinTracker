@@ -7,15 +7,14 @@ namespace FinTracker.Logic.Handlers.Payment.CreatePayment;
 public class CreatePaymentCommand : IRequest<CreatePaymentModel>
 {
     public CreatePaymentCommand(
-        string title, string description, decimal amount, Guid billId, Guid currencyId, Guid categoryId, OperationType type)
+        string title, string description, decimal? amount, Guid? billId, Guid? categoryId, OperationType? type)
     {
         Title = title; 
         Description = description;
-        Amount = amount;
-        BillId = billId;
-        CurrencyId = currencyId;
-        CategoryId = categoryId;
-        Type = type;
+        Amount = amount!.Value;
+        BillId = billId!.Value;
+        CategoryId = categoryId!.Value;
+        Type = type!.Value;
     }
     
     public string Title { get; set; }
@@ -25,8 +24,6 @@ public class CreatePaymentCommand : IRequest<CreatePaymentModel>
     public decimal Amount { get; set; }
 
     public Guid BillId { get; set; }
-
-    public Guid CurrencyId { get; set; }
     
     public Guid CategoryId { get; set; }
 

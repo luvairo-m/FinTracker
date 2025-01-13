@@ -2,7 +2,7 @@
 
 namespace FinTracker.Api.Controllers.Currency.Dto.Responses;
 
-public record struct GetCurrenciesResponse
+public class GetCurrenciesResponse
 {
-    public required ICollection<GetCurrencyResponse> Currencies { get; set; }
+    public ICollection<GetCurrencyResponse> Currencies { get; set; }
 }

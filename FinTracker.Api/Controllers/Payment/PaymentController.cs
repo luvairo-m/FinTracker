@@ -6,7 +6,6 @@ using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FinTracker.Logic.Handlers.Payment.DeletePayment;
-using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;
 using FinTracker.Logic.Handlers.Payment.UpdatePayment;
 using MediatR;
@@ -40,7 +39,6 @@ public class PaymentController : ControllerBase
             description: createPaymentRequest.Description,
             amount: createPaymentRequest.Amount,
             billId: createPaymentRequest.BillId,
-            currencyId:createPaymentRequest.CurrencyId,
             categoryId:createPaymentRequest.CategoryId,
             type: createPaymentRequest.Type));
         
@@ -50,27 +48,22 @@ public class PaymentController : ControllerBase
     }
 
     /// <summary>
-    /// Получить информацию о платеже
-    /// </summary>
-    [HttpGet("{paymentId::guid}")]
-    [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayment(Guid paymentId)
-    {
-        var payment = await mediator.Send(new GetPaymentCommand(paymentId: paymentId));
-        
-        var response = mapper.Map<GetPaymentResponse>(payment);
-        
-        return Ok(response);
-    }
-
-    /// <summary>
     /// Получить информацию о совершенных платежах
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayments()
+    public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
     {
-        var payments = await mediator.Send(new GetPaymentsCommand());
+        var payments = await mediator.Send(new GetPaymentsCommand(
+            id: request.Id,
+            minAmount: request.MinAmount,
+            maxAmount: request.MaxAmount,
+            types: request.Types,
+            minDate: request.MinDate,
+            maxDate: request.MaxDate,
+            months: request.Months,
+            years: request.Years,
+            billId: request.BillId));
         
         var response = mapper.Map<GetPaymentsResponse>(payments);
 
@@ -85,13 +78,11 @@ public class PaymentController : ControllerBase
     public async Task<IActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
         await mediator.Send(new UpdatePaymentCommand(
-            paymentId: paymentId,
+            id: paymentId,
             title: updatePaymentRequest.Title,
             description: updatePaymentRequest.Description,
             amount: updatePaymentRequest.Amount,
             billId: updatePaymentRequest.BillId,
-            currencyId: updatePaymentRequest.CurrencyId,
-            categoryId: updatePaymentRequest.CategoryId,
             type: updatePaymentRequest.Type));
         
         return Ok();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -6,7 +7,6 @@ using FinTracker.Api.Controllers.Bill.Dto.Requests;
 using FinTracker.Api.Controllers.Bill.Dto.Responses;
 using FinTracker.Logic.Handlers.Bill.CreateBill;
 using FinTracker.Logic.Handlers.Bill.DeleteBill;
-using FinTracker.Logic.Handlers.Bill.GetBill;
 using FinTracker.Logic.Handlers.Bill.GetBills;
 using FinTracker.Logic.Handlers.Bill.UpdateBill;
 using MediatR;
@@ -33,44 +33,27 @@ public class BillController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreateBillResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateBill([FromBody] CreateBillRequest createBillRequest)
+    public async Task<IActionResult> CreateBillAsync([FromBody] CreateBillRequest createBillRequest)
     {
         var createdBill = await mediator.Send(new CreateBillCommand(
             title: createBillRequest.Title,
             balance: createBillRequest.Balance,
-            description: createBillRequest.Description));
+            description: createBillRequest.Description,
+            currencyId: createBillRequest.CurrencyId));
         
-        var response = mapper.Map<CreateBillResponse>(createdBill);
-        
-        return Ok(response);
+        return Ok(mapper.Map<CreateBillResponse>(createdBill));
     }
 
     /// <summary>
-    /// Получить счёт по идентификатору
-    /// </summary>
-    [HttpGet("{billId:guid}")]
-    [ProducesResponseType<GetBillResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetBill([FromRoute] Guid billId)
-    {
-        var bill = await mediator.Send(new GetBillCommand(billId: billId));
-        
-        var response = mapper.Map<GetBillResponse>(bill);
-        
-        return Ok(response);
-    }
-
-    /// <summary>
-    /// Получить счет
+    /// Получить счета по параметрам
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<GetBillsResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetBills()
+    [ProducesResponseType<ICollection<GetBillResponse>>((int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetBillsAsync([FromQuery] GetBillsRequest request)
     {
-        var bills = await mediator.Send(new GetBillsCommand());
+        var bills = await mediator.Send(mapper.Map<GetBillsRequest, GetBillsCommand>(request));
         
-        var response = mapper.Map<GetBillsResponse>(bills);
-        
-        return Ok(response);
+        return Ok(mapper.Map<ICollection<GetBillResponse>>(bills));
     }
 
     /// <summary>
@@ -78,13 +61,13 @@ public class BillController : ControllerBase
     /// </summary>
     [HttpPut("{billId:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateBill([FromRoute] Guid billId, [FromBody] UpdateBillRequest updateBillRequest)
+    public async Task<IActionResult> UpdateBillAsync([FromRoute] Guid billId, [FromBody] UpdateBillRequest updateBillRequest)
     {
         await mediator.Send(new UpdateBillCommand(
-            billId: billId,
+            id: billId,
             title: updateBillRequest.Title,
-            balance: updateBillRequest.Balance,
-            description: updateBillRequest.Description));
+            description: updateBillRequest.Description,
+            currencyId: updateBillRequest.CurrencyId));
         
         return Ok();
     }
@@ -94,7 +77,7 @@ public class BillController : ControllerBase
     /// </summary>
     [HttpDelete("{billId:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> DeleteBill([FromRoute] Guid billId)
+    public async Task<IActionResult> DeleteBillAsync([FromRoute] Guid billId)
     {
         await mediator.Send(new DeleteBillCommand(billId: billId));
         

@@ -2,7 +2,7 @@
 
 namespace FinTracker.Api.Controllers.Payment.Dto.Responses;
 
-public record struct GetPaymentsResponse
+public class GetPaymentsResponse
 {
-    public required ICollection<GetPaymentResponse> Payments { get; init; }
+    public ICollection<GetPaymentResponse> Payments { get; init; }
 }
