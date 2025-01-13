@@ -2,15 +2,15 @@
 
 namespace FinTracker.Api.Controllers.Bill.Dto.Responses;
 
-public record struct GetBillResponse
+public class GetBillResponse
 {
-    public required Guid Id { get; init; }
+    public Guid Id { get; init; }
 
-    public required string Title { get; init; }
+    public string Title { get; init; }
 
-    public required decimal Balance { get; init; }
+    public decimal Balance { get; init; }
     
-    public required string Description { get; init; }
+    public string Description { get; init; }
     
-    public required Guid CurrencyId { get; init; }
+    public Guid CurrencyId { get; init; }
 }

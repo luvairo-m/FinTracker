@@ -112,12 +112,10 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Id = update.Id,
             Title = update.Title ?? model.Title,
             Description = update.Description ?? model.Description,
-            
-            // Нельзя обновлять.
-            Amount = model.Amount,
-            Type = model.Type,
-            Date = model.Date,
-            BillId = model.BillId,
+            Amount = update.Amount ?? model.Amount,
+            Type = update.Type ?? model.Type,
+            Date = update.Date ?? model.Date,
+            BillId = update.BillId ?? model.BillId,
             
             // Обновляется через специальный метод.
             Categories = model.Categories

@@ -32,7 +32,7 @@ public class Bill : IEntity
     public string Title { get; set; }
 
     /// <summary>
-    /// Описание счета.
+    /// Описание счета (опционально).
     /// </summary>
     [Column("Description")]
     public string Description { get; set; }

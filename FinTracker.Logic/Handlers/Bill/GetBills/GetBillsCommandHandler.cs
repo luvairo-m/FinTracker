@@ -6,7 +6,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Bill.GetBills;
 
-internal class GetBillsCommandHandler : IRequestHandler<GetBillsCommand, GetBillsModel>
+internal class GetBillsCommandHandler : IRequestHandler<GetBillsCommand, ICollection<GetBillModel>>
 {
     private readonly IBillRepository billRepository;
     private readonly IMapper mapper;
@@ -17,14 +17,16 @@ internal class GetBillsCommandHandler : IRequestHandler<GetBillsCommand, GetBill
         this.mapper = mapper;
     }
 
-    public async Task<GetBillsModel> Handle(GetBillsCommand request, CancellationToken cancellationToken)
+    public async Task<ICollection<GetBillModel>> Handle(GetBillsCommand request, CancellationToken cancellationToken)
     {
-        var gettingBillsResult = await billRepository.SearchAsync(new BillSearch());
-        gettingBillsResult.EnsureSuccess();
-
-        return new GetBillsModel
+        var getResult = await billRepository.SearchAsync(new BillSearch
         {
-            Bills = mapper.Map<ICollection<GetBillModel>>(gettingBillsResult.Result)
-        };
+            Id = request.Id,
+            TitleSubstring = request.Title,
+            CurrencyId = request.CurrencyId
+        });
+        getResult.EnsureSuccess();
+        
+        return mapper.Map<ICollection<Dal.Models.Bills.Bill>, ICollection<GetBillModel>>(getResult.Result);
     }
 }

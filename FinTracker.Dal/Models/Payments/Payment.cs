@@ -27,7 +27,7 @@ public class Payment : IEntity
     public string Title { get; set; }
     
     /// <summary>
-    /// Описание платежа.
+    /// Описание платежа (опционально).
     /// </summary>
     [Logic.Attributes.Column("Description")]
     public string Description { get; set; }
@@ -43,14 +43,12 @@ public class Payment : IEntity
     /// Пример: доход, расход.
     /// </summary>
     [Logic.Attributes.Column("Type")]
-    [ReadOnly(isReadOnly: true)]
     public OperationType? Type { get; set; }
     
     /// <summary>
     /// Дата совершения платежа (UTC).
     /// </summary>
     [Logic.Attributes.Column("Date")]
-    [ReadOnly(isReadOnly: true)]
     public DateTime? Date { get; set; }
     
     /// <summary>
