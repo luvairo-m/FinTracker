@@ -5,6 +5,8 @@ namespace FinTracker.Api.Controllers.Payment.Dto.Requests;
 
 public class GetPaymentsRequest
 {
+    public Guid? Id { get; set; }
+    
     public decimal? MinAmount { get; set; }
     
     public decimal? MaxAmount { get; set; }

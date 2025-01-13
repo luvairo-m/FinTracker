@@ -6,9 +6,10 @@ namespace FinTracker.Logic.Handlers.Payment.GetPayments;
 
 public class GetPaymentsCommand : IRequest<GetPaymentsModel>
 {
-    public GetPaymentsCommand(decimal? minAmount, decimal? maxAmount, OperationType[] types, DateTime? minDate, 
+    public GetPaymentsCommand(Guid? id, decimal? minAmount, decimal? maxAmount, OperationType[] types, DateTime? minDate, 
         DateTime? maxDate, int[] months, int[] years, Guid? billId)
     {
+        Id = id;
         MinAmount = minAmount;
         MaxAmount = maxAmount;
         Types = types;
@@ -18,6 +19,8 @@ public class GetPaymentsCommand : IRequest<GetPaymentsModel>
         Years = years;
         BillId = billId;
     }
+    
+    public Guid? Id { get; set; }
     
     public decimal? MinAmount { get; set; }
     

@@ -6,7 +6,6 @@ using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FinTracker.Logic.Handlers.Payment.DeletePayment;
-using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;
 using FinTracker.Logic.Handlers.Payment.UpdatePayment;
 using MediatR;
@@ -49,35 +48,22 @@ public class PaymentController : ControllerBase
     }
 
     /// <summary>
-    /// Получить информацию о платеже
-    /// </summary>
-    [HttpGet("{paymentId::guid}")]
-    [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayment(Guid paymentId)
-    {
-        var payment = await mediator.Send(new GetPaymentCommand(paymentId: paymentId));
-        
-        var response = mapper.Map<GetPaymentResponse>(payment);
-        
-        return Ok(response);
-    }
-
-    /// <summary>
     /// Получить информацию о совершенных платежах
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayments([FromBody] GetPaymentsRequest getPaymentsRequest)
+    public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
     {
         var payments = await mediator.Send(new GetPaymentsCommand(
-            minAmount: getPaymentsRequest.MinAmount,
-            maxAmount: getPaymentsRequest.MaxAmount,
-            types: getPaymentsRequest.Types,
-            minDate: getPaymentsRequest.MinDate,
-            maxDate: getPaymentsRequest.MaxDate,
-            months: getPaymentsRequest.Months,
-            years: getPaymentsRequest.Years,
-            billId: getPaymentsRequest.BillId));
+            id: request.Id,
+            minAmount: request.MinAmount,
+            maxAmount: request.MaxAmount,
+            types: request.Types,
+            minDate: request.MinDate,
+            maxDate: request.MaxDate,
+            months: request.Months,
+            years: request.Years,
+            billId: request.BillId));
         
         var response = mapper.Map<GetPaymentsResponse>(payments);
 
