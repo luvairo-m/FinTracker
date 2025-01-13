@@ -2,7 +2,7 @@
 
 namespace FinTracker.Api.Controllers.Category.Dto.Responses;
 
-public record struct GetCategoriesResponse
+public class GetCategoriesResponse
 {
-    public required ICollection<GetCategoryResponse> Categories { get; init; }
+    public ICollection<GetCategoryResponse> Categories { get; init; }
 }

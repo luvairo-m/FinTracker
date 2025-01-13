@@ -3,7 +3,7 @@ using FinTracker.Dal.Models.Payments;
 
 namespace FinTracker.Api.Controllers.Payment.Dto.Requests;
 
-public record struct GetPaymentsRequest
+public class GetPaymentsRequest
 {
     public decimal? MinAmount { get; set; }
     
