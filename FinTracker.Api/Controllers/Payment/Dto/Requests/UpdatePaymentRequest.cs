@@ -15,7 +15,7 @@ public class UpdatePaymentRequest : IValidatableObject
     
     public decimal? Amount { get; init; }
     
-    public Guid? BillId { get; init; }
+    public Guid? AccountId { get; init; }
     
     public Guid? CategoryId { get; init; }
     

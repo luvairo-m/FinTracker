@@ -19,7 +19,7 @@ internal class GetPaymentCommandHandler : IRequestHandler<GetPaymentCommand, Get
 
     public async Task<GetPaymentModel> Handle(GetPaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentsResult = await paymentRepository.SearchAsync(new PaymentSearch { Id = request.PaymentId });
+        var gettingPaymentsResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
         gettingPaymentsResult.EnsureSuccess();
         
         var payment = gettingPaymentsResult.Result.FirstOrDefault();

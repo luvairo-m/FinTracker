@@ -5,9 +5,9 @@ using AutoMapper;
 using FinTracker.Api.Controllers.Category.Dto.Requests;
 using FinTracker.Api.Controllers.Category.Dto.Responses;
 using FinTracker.Logic.Handlers.Category.CreateCategory;
-using FinTracker.Logic.Handlers.Category.DeleteCategory;
 using FinTracker.Logic.Handlers.Category.GetCategories;
 using FinTracker.Logic.Handlers.Category.GetCategory;
+using FinTracker.Logic.Handlers.Category.RemoveCategory;
 using FinTracker.Logic.Handlers.Category.UpdateCategory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,9 +35,7 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
     {
-        var createdCategory = await mediator.Send(new CreateCategoryCommand(
-            title: createCategoryRequest.Title,
-            description: createCategoryRequest.Description));
+        var createdCategory = await mediator.Send(mapper.Map<CreateCategoryCommand>(createCategoryRequest));
         
         var response = mapper.Map<CreateCategoryResponse>(createdCategory);
         
@@ -51,21 +49,21 @@ public class CategoryController : ControllerBase
     [ProducesResponseType<GetCategoryResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCategory(Guid categoryId)
     {
-        var category = await mediator.Send(new GetCategoryCommand(categoryId: categoryId));
+        var category = await mediator.Send(mapper.Map<GetCategoryCommand>(categoryId));
         
         var response = mapper.Map<GetCategoryResponse>(category);
-     
+        
         return Ok(response);
     }
 
     /// <summary>
-    /// Получить все категории
+    /// Получить категории
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetCategoriesResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetCategories([FromQuery] GetCategoriesRequest getCategoriesRequest)
     {
-        var categories = await mediator.Send(new GetCategoriesCommand());
+        var categories = await mediator.Send(mapper.Map<GetCategoriesCommand>(getCategoriesRequest));
         
         var response = mapper.Map<GetCategoriesResponse>(categories);
         
@@ -79,10 +77,7 @@ public class CategoryController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
-        await mediator.Send(new UpdateCategoryCommand(
-            id: categoryId, 
-            title: updateCategoryRequest.Title,
-            description: updateCategoryRequest.Description));
+        await mediator.Send(mapper.Map<UpdateCategoryCommand>((categoryId, updateCategoryRequest)));
         
         return Ok();
     }
@@ -92,9 +87,9 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpDelete("{categoryId::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> DeleteCategory(Guid categoryId)
+    public async Task<IActionResult> RemoveCategory(Guid categoryId)
     {
-        await mediator.Send(new DeleteCategoryCommand(categoryId: categoryId));
+        await mediator.Send(mapper.Map<RemoveCategoryCommand>(categoryId));
         
         return Ok();
     }

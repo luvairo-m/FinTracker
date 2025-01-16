@@ -18,7 +18,7 @@ public class CreatePaymentRequest : IValidatableObject
     public decimal? Amount { get; init; }
     
     [Required]
-    public Guid? BillId { get; init; }
+    public Guid? AccountId { get; init; }
 
     [Required]
     public Guid? CategoryId { get; init; }

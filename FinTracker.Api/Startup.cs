@@ -40,8 +40,8 @@ public class Startup
                     .AddSqlServer()
                     .WithGlobalConnectionString(Configuration.GetConnectionString("FinTracker"))
                     .ScanIn(typeof(Initial_202501081823).Assembly).For.Migrations());
-
-        services.AddAutoMapper(typeof(CategoryMapper));
+        
+        services.AddAutoMapper(typeof(CategoryMapper), typeof(Logic.Mappers.Category.CategoryMapper));
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Currency.GetCurrencies;
 
-public class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand, GetCurrenciesModel>
+internal class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand, GetCurrenciesModel>
 {
     private readonly ICurrencyRepository currencyRepository;
     private readonly IMapper mapper;
@@ -19,7 +19,7 @@ public class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand,
 
     public async Task<GetCurrenciesModel> Handle(GetCurrenciesCommand request, CancellationToken cancellationToken)
     {
-        var gettingCategoriesResult = await currencyRepository.SearchAsync(new CurrencySearch());
+        var gettingCategoriesResult = await currencyRepository.SearchAsync(mapper.Map<CurrencySearch>(request));
         gettingCategoriesResult.EnsureSuccess();
 
         return new GetCurrenciesModel

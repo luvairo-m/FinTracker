@@ -79,7 +79,7 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Amount = 15_000,
             Type = OperationType.Income,
             Date = DateTime.UtcNow,
-            BillId = Guid.NewGuid(),
+            AccountId = Guid.NewGuid(),
             Categories = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
         };
     }
@@ -91,7 +91,7 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
         if (!byIdOnly)
         {
             search.TitleSubstring = model.Title;
-            search.BillId = model.BillId;
+            search.AccountId = model.AccountId;
             search.Months = new[] { model.Date!.Value.Month };
             search.Years = new[] { model.Date!.Value.Year };
             search.Types = new[] { model.Type!.Value };
@@ -115,7 +115,7 @@ public class PaymentRepositoryTests : RepositoryBaseTests<Payment, PaymentSearch
             Amount = update.Amount ?? model.Amount,
             Type = update.Type ?? model.Type,
             Date = update.Date ?? model.Date,
-            BillId = update.BillId ?? model.BillId,
+            AccountId = update.AccountId ?? model.AccountId,
             
             // Обновляется через специальный метод.
             Categories = model.Categories

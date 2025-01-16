@@ -11,15 +11,8 @@ public static class HostExtensions
         using var scope = host.Services.CreateScope();
         
         var migrationRunner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-            
-        try
-        {
-            migrationRunner.MigrateUp();
-        }
-        catch
-        {
-            // ignored
-        }
+        
+        migrationRunner.MigrateUp();
 
         return host;
     }

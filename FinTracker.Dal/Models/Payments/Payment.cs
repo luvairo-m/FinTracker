@@ -54,8 +54,8 @@ public class Payment : IEntity
     /// <summary>
     /// Идентификатор счета платежа.
     /// </summary>
-    [Logic.Attributes.Column("BillId")]
-    public Guid? BillId { get; set; }
+    [Logic.Attributes.Column("AccountId")]
+    public Guid? AccountId { get; set; }
     
     /// <summary>
     /// Категории платежа.

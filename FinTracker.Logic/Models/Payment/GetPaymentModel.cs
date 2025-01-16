@@ -12,7 +12,7 @@ public struct GetPaymentModel
     
     public decimal Amount { get; init; }
 
-    public Guid BillId { get; init; }
+    public Guid AccountId { get; init; }
     
     public OperationType Type { get; init; }
 

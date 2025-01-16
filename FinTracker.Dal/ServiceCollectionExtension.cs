@@ -1,5 +1,5 @@
 ﻿using FinTracker.Dal.Logic.Connections;
-using FinTracker.Dal.Repositories.Bills;
+using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Dal.Repositories.Currencies;
 using FinTracker.Dal.Repositories.Payments;
@@ -16,7 +16,7 @@ public static class ServiceCollectionExtension
             provider => new SqlConnectionFactory(provider.GetRequiredService<IConfiguration>().GetConnectionString("FinTracker")));
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IBillRepository, BillRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ICurrencyRepository, CurrencyRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         

@@ -5,5 +5,5 @@ namespace FinTracker.Logic.Handlers.Currency.GetCurrencies;
 
 public class GetCurrenciesCommand : IRequest<GetCurrenciesModel>
 {
-    
+    public string TitleSubstring { get; set; }
 }

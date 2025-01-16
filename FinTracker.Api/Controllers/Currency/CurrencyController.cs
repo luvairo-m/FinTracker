@@ -5,9 +5,9 @@ using AutoMapper;
 using FinTracker.Api.Controllers.Currency.Dto.Requests;
 using FinTracker.Api.Controllers.Currency.Dto.Responses;
 using FinTracker.Logic.Handlers.Currency.CreateCurrency;
-using FinTracker.Logic.Handlers.Currency.DeleteCurrency;
 using FinTracker.Logic.Handlers.Currency.GetCurrencies;
 using FinTracker.Logic.Handlers.Currency.GetCurrency;
+using FinTracker.Logic.Handlers.Currency.RemoveCurrency;
 using FinTracker.Logic.Handlers.Currency.UpdateCurrency;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -35,9 +35,7 @@ public class CurrencyController : ControllerBase
     [ProducesResponseType<CreateCurrencyResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCurrency([FromBody] CreateCurrencyRequest createCurrencyRequest)
     {
-        var createdCurrency = await mediator.Send(new CreateCurrencyCommand(
-            title: createCurrencyRequest.Title,
-            sign: createCurrencyRequest.Sign));
+        var createdCurrency = await mediator.Send(mapper.Map<CreateCurrencyCommand>(createCurrencyRequest));
 
         var response = mapper.Map<CreateCurrencyResponse>(createdCurrency);
 
@@ -51,7 +49,7 @@ public class CurrencyController : ControllerBase
     [ProducesResponseType<GetCurrencyResponse>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCurrency(Guid currencyId)
     {
-        var currency = await mediator.Send(new GetCurrencyCommand(currencyId: currencyId));
+        var currency = await mediator.Send(mapper.Map<GetCurrencyCommand>(currencyId));
 
         var response = mapper.Map<GetCurrencyResponse>(currency);
 
@@ -63,9 +61,9 @@ public class CurrencyController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType<GetCurrenciesResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCurrencies()
+    public async Task<IActionResult> GetCurrencies([FromQuery] GetCurrenciesRequest getCurrenciesRequest)
     {
-        var currencies = await mediator.Send(new GetCurrenciesCommand());
+        var currencies = await mediator.Send(mapper.Map<GetCurrenciesCommand>(getCurrenciesRequest));
 
         var response = mapper.Map<GetCurrenciesResponse>(currencies);
 
@@ -79,10 +77,7 @@ public class CurrencyController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> UpdateCurrency(Guid currencyId, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
     {
-        await mediator.Send(new UpdateCurrencyCommand(
-            id: currencyId,
-            title: updateCurrencyRequest.Title,
-            sign: updateCurrencyRequest.Sign));
+        await mediator.Send(mapper.Map<UpdateCurrencyCommand>((currencyId, updateCurrencyRequest)));
 
         return Ok();
     }
@@ -92,9 +87,9 @@ public class CurrencyController : ControllerBase
     /// </summary>
     [HttpDelete("{currencyId:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> DeleteCurrency(Guid currencyId)
+    public async Task<IActionResult> RemoveCurrency(Guid currencyId)
     {
-        await mediator.Send(new DeleteCurrencyCommand(currencyId: currencyId));
+        await mediator.Send(mapper.Map<RemoveCurrencyCommand>(currencyId));
 
         return Ok();
     }
