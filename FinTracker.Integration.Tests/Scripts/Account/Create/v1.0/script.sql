@@ -4,14 +4,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[Bill]
+CREATE TABLE [dbo].[Account]
 (
     [Id] [uniqueidentifier] NOT NULL,
     [Balance] [money] NOT NULL,
     [Title] [nvarchar] (128) UNIQUE NOT NULL,
     [Description] [nvarchar] (1024) NULL,
     [CurrencyId] [uniqueidentifier] NOT NULL,
-    CONSTRAINT [PK_Bill] PRIMARY KEY CLUSTERED ( [Id] ASC )
+    CONSTRAINT [PK_Account] PRIMARY KEY CLUSTERED ( [Id] ASC )
     WITH
     (
         PAD_INDEX = OFF,

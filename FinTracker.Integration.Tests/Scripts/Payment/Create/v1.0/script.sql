@@ -12,7 +12,7 @@ CREATE TABLE [dbo].[Payment]
     [Amount] [int] NOT NULL,
     [Type] [tinyint] NOT NULL,
     [Date] [datetime] NOT NULL,
-    [BillId] [uniqueidentifier] NOT NULL,
+    [AccountId] [uniqueidentifier] NOT NULL,
     CONSTRAINT [PK_Payment] PRIMARY KEY CLUSTERED ( [Id] ASC )
     WITH 
     (
