@@ -66,4 +66,4 @@ FinTracker — это система для управления и контро
    Файлы `appsettings.json` и `Startup.cs` позволяют гибко настраивать сервисы и подключать сторонние библиотеки.
 
 ### Структура таблиц базы данных
-![изображение](https://github.com/user-attachments/assets/618df346-7d9d-4457-9d9d-c1943f7bdbc3)
+![изображение](https://github.com/user-attachments/assets/2627b7d9-8a2d-44be-9f3c-3eeac9b81607)
