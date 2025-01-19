@@ -5,5 +5,5 @@ namespace FinTracker.Logic.Handlers.Account.GetAccount;
 
 public class GetAccountCommand : IRequest<GetAccountModel>
 {
-    public Guid BillId { get; set; }
+    public Guid AccountId { get; set; }
 }

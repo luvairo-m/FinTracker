@@ -2,7 +2,6 @@
 using AutoMapper;
 using FinTracker.Api.Controllers.Account.Dto.Requests;
 using FinTracker.Api.Controllers.Account.Dto.Responses;
-using FinTracker.Api.Controllers.Bill.Dto.Responses;
 using FinTracker.Logic.Handlers.Account.CreateAccount;
 using FinTracker.Logic.Handlers.Account.GetAccount;
 using FinTracker.Logic.Handlers.Account.GetAccounts;
@@ -21,7 +20,7 @@ public class AccountMapper : Profile
         CreateMap<CreateAccountModel, CreateAccountResponse>();
         
         CreateMap<Guid, GetAccountCommand>()
-            .ForMember(dest => dest.BillId, y => y.MapFrom(z => z));
+            .ForMember(dest => dest.AccountId, y => y.MapFrom(z => z));
         
         CreateMap<GetAccountModel, GetAccountResponse>();
         

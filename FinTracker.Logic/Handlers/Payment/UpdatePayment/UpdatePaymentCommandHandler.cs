@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FinTracker.Dal.Models.Bills;
+using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
@@ -22,92 +22,86 @@ internal class UpdatePaymentCommandHandler : IRequestHandler<UpdatePaymentComman
 
     public async Task Handle(UpdatePaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
-        gettingPaymentResult.EnsureSuccess();
+        var getPaymentResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
+        getPaymentResult.EnsureSuccess();
 
-        var payment = gettingPaymentResult.Result.FirstOrDefault();
+        var payment = getPaymentResult.Result.FirstOrDefault()!;
         
-        var gettingCurrentBillResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(payment));
-        gettingCurrentBillResult.EnsureSuccess();
+        var getCurrentAccountResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(payment));
+        getCurrentAccountResult.EnsureSuccess();
         
-        var currentBill = gettingCurrentBillResult.Result.FirstOrDefault();
+        var currentAccount = getCurrentAccountResult.Result.FirstOrDefault()!;
         
         var updatedPayment = mapper.Map<Dal.Models.Payments.Payment>(request);
 
         if (!request.AccountId.HasValue && request.Amount.HasValue)
         {
-            if (payment.Type == OperationType.Outcome && currentBill!.Balance < request.Amount)
+            if (payment.Type == OperationType.Outcome && currentAccount!.Balance < request.Amount)
             {
                 throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
             }
             
-            currentBill.Balance = payment.Type == OperationType.Outcome
-                ? currentBill.Balance - payment.Amount 
-                : currentBill.Balance + payment.Amount;
+            currentAccount.Balance = payment.Type == OperationType.Outcome
+                ? currentAccount.Balance - payment.Amount 
+                : currentAccount.Balance + payment.Amount;
             
-            var updatedBillResult = await accountRepository.UpdateAsync(currentBill);
-            updatedBillResult.EnsureSuccess();
+            (await accountRepository.UpdateAsync(currentAccount)).EnsureSuccess();
         }
 
-        if (request.AccountId.HasValue && !request.Amount.HasValue)
+        if (request is { AccountId: not null, Amount: null })
         {
-            var gettingNewBillResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
-            gettingNewBillResult.EnsureSuccess();
+            var getAccountResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
+            getAccountResult.EnsureSuccess();
             
-            var newBill = gettingNewBillResult.Result.FirstOrDefault();
+            var account = getAccountResult.Result.FirstOrDefault()!;
 
-            if (payment.Type == OperationType.Outcome && newBill!.Balance < payment!.Amount)
+            if (payment.Type == OperationType.Outcome && account!.Balance < payment!.Amount)
             {
                 throw new ForbiddenOperation(
-                    $"Insufficient funds in the account with title '{newBill.Title}' to update the payment.");
+                    $"Insufficient funds in the account with title '{account.Title}' to update the payment.");
             }
             
-            currentBill!.Balance = payment.Type == OperationType.Outcome 
-                ? currentBill.Balance + payment.Amount 
-                : currentBill.Balance - payment.Amount;
+            currentAccount!.Balance = payment.Type == OperationType.Outcome 
+                ? currentAccount.Balance + payment.Amount 
+                : currentAccount.Balance - payment.Amount;
             
-            var updatedCurrentBillResult = await accountRepository.UpdateAsync(currentBill);
-            updatedCurrentBillResult.EnsureSuccess();
+            (await accountRepository.UpdateAsync(currentAccount)).EnsureSuccess();
             
-            newBill.Balance = payment.Type == OperationType.Outcome 
-                ? newBill.Balance - payment.Amount 
-                : newBill.Balance + payment.Amount;;
+            account.Balance = payment.Type == OperationType.Outcome 
+                ? account.Balance - payment.Amount 
+                : account.Balance + payment.Amount;;
             
-            var updatedNewBillResult = await accountRepository.UpdateAsync(newBill);
-            updatedNewBillResult.EnsureSuccess();
+            (await accountRepository.UpdateAsync(account)).EnsureSuccess();
         }
 
-        if (request.AccountId.HasValue && request.Amount.HasValue)
+        if (request is { AccountId: not null, Amount: not null })
         {
-            var gettingNewBillResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
-            gettingNewBillResult.EnsureSuccess();
+            var getNewAccountResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
+            getNewAccountResult.EnsureSuccess();
             
-            var newBill = gettingNewBillResult.Result.FirstOrDefault();
+            var account = getNewAccountResult.Result.FirstOrDefault()!;
 
-            if (payment.Type == OperationType.Outcome && newBill!.Balance < payment!.Amount)
+            if (payment.Type == OperationType.Outcome && account!.Balance < payment!.Amount)
             {
                 throw new ForbiddenOperation(
-                    $"Insufficient funds in the account with title '{newBill.Title}' to update the payment.");
+                    $"Insufficient funds in the account with title '{account.Title}' to update the payment.");
             }
             
             var differenceBetweenAmount = Math.Abs((decimal)(payment.Amount - (decimal)request.Amount)!);
             
-            currentBill!.Balance = payment.Type == OperationType.Outcome 
-                ? currentBill.Balance + differenceBetweenAmount 
-                : currentBill.Balance - differenceBetweenAmount;
+            currentAccount!.Balance = payment.Type == OperationType.Outcome 
+                ? currentAccount.Balance + differenceBetweenAmount 
+                : currentAccount.Balance - differenceBetweenAmount;
             
-            var updatedCurrentBillResult = await accountRepository.UpdateAsync(currentBill);
-            updatedCurrentBillResult.EnsureSuccess();
+            (await accountRepository.UpdateAsync(currentAccount)).EnsureSuccess();
             
-            newBill.Balance = payment.Type == OperationType.Outcome 
-                ? newBill.Balance - differenceBetweenAmount
-                : newBill.Balance + differenceBetweenAmount;
+            account.Balance = payment.Type == OperationType.Outcome 
+                ? account.Balance - differenceBetweenAmount
+                : account.Balance + differenceBetweenAmount;
             
-            var updatedNewBillResult = await accountRepository.UpdateAsync(newBill);
-            updatedNewBillResult.EnsureSuccess();
+            (await accountRepository.UpdateAsync(account)).EnsureSuccess();
         }
         
-        var updatingPaymentResult = await paymentRepository.UpdateAsync(updatedPayment);
-        updatingPaymentResult.EnsureSuccess();
+        (await paymentRepository.UpdateAsync(updatedPayment)).EnsureSuccess();
     }
 }

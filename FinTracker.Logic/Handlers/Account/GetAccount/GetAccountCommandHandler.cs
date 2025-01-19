@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FinTracker.Dal.Models.Bills;
+using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Logic.Models.Account;
 using MediatR;
@@ -19,12 +19,12 @@ internal class GetAccountCommandHandler : IRequestHandler<GetAccountCommand, Get
     
     public async Task<GetAccountModel> Handle(GetAccountCommand request, CancellationToken cancellationToken)
     {
-        var gettingBillsResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
+        var searchResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
 
-        gettingBillsResult.EnsureSuccess();
+        searchResult.EnsureSuccess();
 
-        var bill = gettingBillsResult.Result.FirstOrDefault();
+        var account = searchResult.Result.FirstOrDefault();
 
-        return mapper.Map<GetAccountModel>(bill);
+        return mapper.Map<GetAccountModel>(account);
     }
 }

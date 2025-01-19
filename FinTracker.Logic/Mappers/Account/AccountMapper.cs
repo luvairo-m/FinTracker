@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FinTracker.Dal.Models.Bills;
+using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Logic.Handlers.Account.CreateAccount;
 using FinTracker.Logic.Handlers.Account.GetAccount;
@@ -14,7 +14,7 @@ public class AccountMapper : Profile
     public AccountMapper()
     {
         CreateMap<GetAccountCommand, AccountSearch>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.BillId))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AccountId))
             .ForMember(dest => dest.TitleSubstring, opt => opt.Ignore())
             .ForMember(dest => dest.CurrencyId, opt => opt.Ignore());
 

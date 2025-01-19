@@ -14,7 +14,7 @@ internal class RemoveAccountCommandHandler : IRequestHandler<RemoveAccountComman
 
     public async Task Handle(RemoveAccountCommand request, CancellationToken cancellationToken)
     {
-        var deletionBillResult = await accountRepository.RemoveAsync(request.AccountId);
-        deletionBillResult.EnsureSuccess();
+        var deleteResult = await accountRepository.RemoveAsync(request.AccountId);
+        deleteResult.EnsureSuccess();
     }
 }

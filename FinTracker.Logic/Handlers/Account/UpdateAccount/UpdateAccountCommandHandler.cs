@@ -26,17 +26,16 @@ internal class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountComman
     {
         if (request.CurrencyId != null)
         {
-            var searchResult = await this.paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
-            searchResult.EnsureSuccess();
+            var searchPaymentResult = await this.paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
+            searchPaymentResult.EnsureSuccess();
 
             // Пока не умеем пересчитывать платежи в рамках счета на другую валюту.
-            if (searchResult.Result.Count > 0)
+            if (searchPaymentResult.Result.Count > 0)
             {
-                throw new Exception("Currency updating can be applied only to empty bills (0 payments).");
+                throw new Exception("Currency updating can be applied only to empty accounts (0 payments).");
             }
         }
         
-        var updateBillResult = await accountRepository.UpdateAsync(mapper.Map<Dal.Models.Accounts.Account>(request));
-        updateBillResult.EnsureSuccess();
+        (await accountRepository.UpdateAsync(mapper.Map<Dal.Models.Accounts.Account>(request))).EnsureSuccess();
     }
 }

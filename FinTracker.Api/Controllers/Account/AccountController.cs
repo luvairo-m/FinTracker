@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Account.Dto.Requests;
 using FinTracker.Api.Controllers.Account.Dto.Responses;
-using FinTracker.Api.Controllers.Bill.Dto.Responses;
 using FinTracker.Logic.Handlers.Account.CreateAccount;
 using FinTracker.Logic.Handlers.Account.GetAccount;
 using FinTracker.Logic.Handlers.Account.GetAccounts;

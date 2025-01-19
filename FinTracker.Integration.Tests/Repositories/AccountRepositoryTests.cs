@@ -1,6 +1,5 @@
 ﻿using FinTracker.Dal.Logic.Connections;
 using FinTracker.Dal.Models.Accounts;
-using FinTracker.Dal.Models.Bills;
 using FinTracker.Dal.Repositories.Accounts;
 using NUnit.Framework;
 using Vostok.Logging.Abstractions;

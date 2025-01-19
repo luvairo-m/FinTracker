@@ -1,6 +1,5 @@
 ﻿using FinTracker.Dal.Models.Abstractions;
 using FinTracker.Dal.Models.Accounts;
-using FinTracker.Dal.Models.Bills;
 
 namespace FinTracker.Dal.Repositories.Accounts;
 

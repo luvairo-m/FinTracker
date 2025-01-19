@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FinTracker.Api.Controllers.Bill.Dto.Responses;
+namespace FinTracker.Api.Controllers.Account.Dto.Responses;
 
 public class GetAccountResponse
 {

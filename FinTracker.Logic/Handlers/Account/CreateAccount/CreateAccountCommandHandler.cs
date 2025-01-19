@@ -18,11 +18,11 @@ internal class CreateAccountCommandHandler : IRequestHandler<CreateAccountComman
 
     public async Task<CreateAccountModel> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
     {
-        var newBill = mapper.Map<Dal.Models.Accounts.Account>(request);
+        var account = mapper.Map<Dal.Models.Accounts.Account>(request);
         
-        var creatingBillResult = await accountRepository.AddAsync(newBill);
-        creatingBillResult.EnsureSuccess();
+        var createAccountResult = await accountRepository.AddAsync(account);
+        createAccountResult.EnsureSuccess();
 
-        return new CreateAccountModel { Id = creatingBillResult.Result };
+        return new CreateAccountModel { Id = createAccountResult.Result };
     }
 }

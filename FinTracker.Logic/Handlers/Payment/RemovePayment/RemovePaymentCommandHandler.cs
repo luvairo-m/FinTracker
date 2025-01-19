@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FinTracker.Dal.Models.Bills;
+using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;

@@ -1,6 +1,6 @@
 ﻿using FinTracker.Dal.Logic.Attributes;
 
-namespace FinTracker.Dal.Models.Bills;
+namespace FinTracker.Dal.Models.Accounts;
 
 public class AccountSearch
 {

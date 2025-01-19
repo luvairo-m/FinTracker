@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FinTracker.Dal.Models.Bills;
+using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
@@ -25,26 +25,26 @@ internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentComman
     {
         var newPayment = mapper.Map<Dal.Models.Payments.Payment>(request);
         
-        var gettingAccountResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
-        gettingAccountResult.EnsureSuccess();
+        var getAccountResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(request));
+        getAccountResult.EnsureSuccess();
 
-        var bill = gettingAccountResult.Result.FirstOrDefault();
+        var account = getAccountResult.Result.FirstOrDefault();
 
-        if (request.Type == OperationType.Outcome && bill!.Balance < request.Amount)
+        if (request.Type == OperationType.Outcome && account!.Balance < request.Amount)
         {
             throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
         }
         
-        var addedPaymentResult = await paymentRepository.AddAsync(newPayment);
-        addedPaymentResult.EnsureSuccess();
+        var addPaymentResult = await paymentRepository.AddAsync(newPayment);
+        addPaymentResult.EnsureSuccess();
         
-        bill!.Balance = request.Type == OperationType.Outcome
-            ? bill.Balance - request.Amount 
-            : bill.Balance + request.Amount;
+        account!.Balance = request.Type == OperationType.Outcome
+            ? account.Balance - request.Amount 
+            : account.Balance + request.Amount;
         
-        var updatedBillResult = await accountRepository.UpdateAsync(bill);
-        updatedBillResult.EnsureSuccess();
+        var updateAccountResult = await accountRepository.UpdateAsync(account);
+        updateAccountResult.EnsureSuccess();
 
-        return new CreatePaymentModel { PaymentId = addedPaymentResult.Result };
+        return new CreatePaymentModel { PaymentId = addPaymentResult.Result };
     }
 }
