@@ -41,8 +41,8 @@ public class Initial_202501081823 : Migration
 
         Create
             .Table("PaymentCategory").InSchema("dbo")
-            .WithColumn("PaymentId").AsGuid().NotNullable()
-            .WithColumn("CategoryId").AsGuid().NotNullable();
+            .WithColumn("PaymentId").AsGuid().ForeignKey("Payment", "Id").OnDelete(Rule.Cascade).NotNullable()
+            .WithColumn("CategoryId").AsGuid().ForeignKey("Category", "Id").OnDelete(Rule.Cascade).NotNullable();
 
         Create
             .PrimaryKey()
