@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinTracker.Dal.Logic;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Payments;
 using FinTracker.Logic.Models.Payment;
@@ -6,7 +7,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.GetPayments;
 
-internal class GetPaymentsCommandHandler : IRequestHandler<GetPaymentsCommand, GetPaymentsModel>
+internal class GetPaymentsCommandHandler : IRequestHandler<GetPaymentsCommand, ICollection<GetPaymentModel>>
 {
     private readonly IPaymentRepository paymentRepository;
     private readonly IMapper mapper;
@@ -17,14 +18,17 @@ internal class GetPaymentsCommandHandler : IRequestHandler<GetPaymentsCommand, G
         this.mapper = mapper;
     }
 
-    public async Task<GetPaymentsModel> Handle(GetPaymentsCommand request, CancellationToken cancellationToken)
+    public async Task<ICollection<GetPaymentModel>> Handle(GetPaymentsCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentsResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
-        gettingPaymentsResult.EnsureSuccess();
+        var getResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
 
-        return new GetPaymentsModel
+        if (getResult.Status == DbQueryResultStatus.NotFound)
         {
-            Payments = mapper.Map<ICollection<GetPaymentModel>>(gettingPaymentsResult.Result)
-        };
+            return Array.Empty<GetPaymentModel>();
+        }
+        
+        getResult.EnsureSuccess();
+
+        return mapper.Map<ICollection<GetPaymentModel>>(getResult.Result);
     }
 }

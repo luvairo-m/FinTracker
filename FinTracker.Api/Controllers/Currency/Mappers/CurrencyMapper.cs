@@ -26,8 +26,6 @@ public class CurrencyMapper : Profile
 
         CreateMap<GetCurrenciesRequest, GetCurrenciesCommand>();
         
-        CreateMap<GetCurrenciesModel, GetCurrenciesResponse>();
-        
         CreateMap<(Guid currencyId, UpdateCurrencyRequest updateCurrencyRequest), UpdateCurrencyCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.currencyId))
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.updateCurrencyRequest.Title))

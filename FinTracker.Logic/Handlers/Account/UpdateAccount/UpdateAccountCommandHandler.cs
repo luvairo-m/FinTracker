@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinTracker.Dal.Logic;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
@@ -24,18 +25,34 @@ internal class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountComman
 
     public async Task Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
     {
-        if (request.CurrencyId != null)
+        await this.ValidateRequest(request);
+
+        var updateResult = await accountRepository.UpdateAsync(mapper.Map<Dal.Models.Accounts.Account>(request));
+        updateResult.EnsureSuccess();
+    }
+
+    private async Task ValidateRequest(UpdateAccountCommand request)
+    {
+        if (request.CurrencyId != null || request.Balance != null)
         {
-            var searchPaymentResult = await this.paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
-            searchPaymentResult.EnsureSuccess();
+            var searchPaymentResult = await this.paymentRepository.SearchAsync(new PaymentSearch { AccountId = request.Id });
+            var accountIsEmpty = searchPaymentResult.Status == DbQueryResultStatus.NotFound;
+            
+            if (searchPaymentResult.Status != DbQueryResultStatus.NotFound)
+            {
+                searchPaymentResult.EnsureSuccess();
+            }
 
             // Пока не умеем пересчитывать платежи в рамках счета на другую валюту.
-            if (searchPaymentResult.Result.Count > 0)
+            if (request.CurrencyId != null && !accountIsEmpty)
             {
-                throw new Exception("Currency updating can be applied only to empty accounts (0 payments).");
+                throw new ForbiddenOperation("Currency can only be updated for accounts without payments.");
+            }
+
+            if (request.Balance != null && !accountIsEmpty)
+            {
+                throw new ForbiddenOperation("Balance can only be updated for accounts without payments.");
             }
         }
-        
-        (await accountRepository.UpdateAsync(mapper.Map<Dal.Models.Accounts.Account>(request))).EnsureSuccess();
     }
 }

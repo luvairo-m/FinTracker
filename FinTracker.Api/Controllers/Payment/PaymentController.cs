@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
+using FinTracker.Infra.Utils;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;
@@ -60,14 +62,13 @@ public class PaymentController : ControllerBase
     /// Получить платежи
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType<ItemsResponse<GetPaymentResponse>>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
     {
         var payments = await mediator.Send(mapper.Map<GetPaymentsCommand>(request));
-        
-        var response = mapper.Map<GetPaymentsResponse>(payments);
+        var items = new ItemsResponse<GetPaymentResponse>(mapper.Map<ICollection<GetPaymentResponse>>(payments));
 
-        return Ok(response);
+        return Ok(items);
     }
 
     /// <summary>

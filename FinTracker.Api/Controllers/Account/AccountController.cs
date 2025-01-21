@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Account.Dto.Requests;
 using FinTracker.Api.Controllers.Account.Dto.Responses;
+using FinTracker.Infra.Utils;
 using FinTracker.Logic.Handlers.Account.CreateAccount;
 using FinTracker.Logic.Handlers.Account.GetAccount;
 using FinTracker.Logic.Handlers.Account.GetAccounts;
@@ -59,12 +60,13 @@ public class AccountController : ControllerBase
     /// Получить счета
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<ICollection<GetAccountResponse>>((int)HttpStatusCode.OK)]
+    [ProducesResponseType<ItemsResponse<GetAccountResponse>>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccountsRequest request)
     {
         var accounts = await mediator.Send(mapper.Map<GetAccountsCommand>(request));
-        
-        return Ok(mapper.Map<ICollection<GetAccountResponse>>(accounts));
+        var items = new ItemsResponse<GetAccountResponse>(mapper.Map<ICollection<GetAccountResponse>>(accounts));
+
+        return Ok(items);
     }
 
     /// <summary>

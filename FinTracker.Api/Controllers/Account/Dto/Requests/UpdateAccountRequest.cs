@@ -11,5 +11,8 @@ public class UpdateAccountRequest
     [MaxLength(1024)]
     public string Description { get; init; }
     
+    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    public decimal? Balance { get; init; }
+    
     public Guid? CurrencyId { get; init; }
 }

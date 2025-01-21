@@ -41,7 +41,10 @@ public class Startup
                     .WithGlobalConnectionString(Configuration.GetConnectionString("FinTracker"))
                     .ScanIn(typeof(Initial_202501081823).Assembly).For.Migrations());
         
-        services.AddAutoMapper(typeof(CategoryMapper), typeof(Logic.Mappers.Category.CategoryMapper));
+        services.AddAutoMapper(
+            cfg => cfg.AllowNullCollections = true,
+            typeof(CategoryMapper),
+            typeof(Logic.Mappers.Category.CategoryMapper));
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         

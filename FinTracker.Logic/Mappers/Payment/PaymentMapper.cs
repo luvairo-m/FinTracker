@@ -19,11 +19,6 @@ public class PaymentMapper : Profile
             .ForMember(dest => dest.Categories, opt => opt.Ignore())
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTime.UtcNow));
         
-        CreateMap<CreatePaymentCommand, AccountSearch>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AccountId))
-            .ForMember(dest => dest.TitleSubstring, opt => opt.MapFrom(src => src.Title))
-            .ForMember(dest => dest.CurrencyId, opt => opt.Ignore());
-        
         CreateMap<GetPaymentsCommand, PaymentSearch>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TitleSubstring, opt => opt.MapFrom(src => src.TitleSubstring))

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Category.Dto.Requests;
 using FinTracker.Api.Controllers.Category.Dto.Responses;
+using FinTracker.Infra.Utils;
 using FinTracker.Logic.Handlers.Category.CreateCategory;
 using FinTracker.Logic.Handlers.Category.GetCategories;
 using FinTracker.Logic.Handlers.Category.GetCategory;
@@ -60,14 +62,13 @@ public class CategoryController : ControllerBase
     /// Получить категории
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<GetCategoriesResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType<ItemsResponse<GetCategoryResponse>>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCategories([FromQuery] GetCategoriesRequest getCategoriesRequest)
     {
         var categories = await mediator.Send(mapper.Map<GetCategoriesCommand>(getCategoriesRequest));
+        var items = new ItemsResponse<GetCategoryResponse>(mapper.Map<ICollection<GetCategoryResponse>>(categories));
         
-        var response = mapper.Map<GetCategoriesResponse>(categories);
-        
-        return Ok(response);
+        return Ok(items);
     }
 
     /// <summary>

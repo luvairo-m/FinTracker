@@ -26,8 +26,6 @@ public class CategoryMapper : Profile
 
         CreateMap<GetCategoriesRequest, GetCategoriesCommand>();
         
-        CreateMap<GetCategoriesModel, GetCategoriesResponse>();
-        
         CreateMap<(Guid categoryId, UpdateCategoryRequest updateAccountRequest), UpdateCategoryCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.categoryId))
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.updateAccountRequest.Title))

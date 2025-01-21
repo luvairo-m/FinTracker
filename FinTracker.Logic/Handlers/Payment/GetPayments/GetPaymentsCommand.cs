@@ -4,7 +4,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.GetPayments;
 
-public class GetPaymentsCommand : IRequest<GetPaymentsModel>
+public class GetPaymentsCommand : IRequest<ICollection<GetPaymentModel>>
 {
     public string TitleSubstring { get; set; }
 

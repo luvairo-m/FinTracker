@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Currency.Dto.Requests;
 using FinTracker.Api.Controllers.Currency.Dto.Responses;
+using FinTracker.Infra.Utils;
 using FinTracker.Logic.Handlers.Currency.CreateCurrency;
 using FinTracker.Logic.Handlers.Currency.GetCurrencies;
 using FinTracker.Logic.Handlers.Currency.GetCurrency;
@@ -60,14 +62,13 @@ public class CurrencyController : ControllerBase
     /// Получить список валют
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<GetCurrenciesResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType<ItemsResponse<GetCurrencyResponse>>((int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCurrencies([FromQuery] GetCurrenciesRequest getCurrenciesRequest)
     {
         var currencies = await mediator.Send(mapper.Map<GetCurrenciesCommand>(getCurrenciesRequest));
+        var items = new ItemsResponse<GetCurrencyResponse>(mapper.Map<ICollection<GetCurrencyResponse>>(currencies));
 
-        var response = mapper.Map<GetCurrenciesResponse>(currencies);
-
-        return Ok(response);
+        return Ok(items);
     }
 
     /// <summary>

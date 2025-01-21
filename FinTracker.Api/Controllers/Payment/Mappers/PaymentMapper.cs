@@ -26,8 +26,6 @@ public class PaymentMapper : Profile
         
         CreateMap<GetPaymentsRequest, GetPaymentsCommand>();
         
-        CreateMap<GetPaymentsModel, GetPaymentsResponse>();
-
         CreateMap<(Guid paymentId, UpdatePaymentRequest updatePaymentRequest), UpdatePaymentCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.paymentId))
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.updatePaymentRequest.Title))

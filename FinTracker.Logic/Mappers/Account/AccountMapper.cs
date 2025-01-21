@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FinTracker.Dal.Models.Accounts;
-using FinTracker.Dal.Models.Payments;
 using FinTracker.Logic.Handlers.Account.CreateAccount;
 using FinTracker.Logic.Handlers.Account.GetAccount;
 using FinTracker.Logic.Handlers.Account.GetAccounts;
@@ -13,32 +12,18 @@ public class AccountMapper : Profile
 {
     public AccountMapper()
     {
-        CreateMap<GetAccountCommand, AccountSearch>()
+        CreateMap<GetAccountCommand, AccountSearch>(MemberList.Destination)
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AccountId))
             .ForMember(dest => dest.TitleSubstring, opt => opt.Ignore())
             .ForMember(dest => dest.CurrencyId, opt => opt.Ignore());
 
-        CreateMap<GetAccountsCommand, AccountSearch>();
+        CreateMap<GetAccountsCommand, AccountSearch>(MemberList.Destination);
 
-        CreateMap<UpdateAccountCommand, PaymentSearch>()
-            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.TitleSubstring, opt => opt.Ignore())
-            .ForMember(dest => dest.MinAmount, opt => opt.Ignore())
-            .ForMember(dest => dest.MaxAmount, opt => opt.Ignore())
-            .ForMember(dest => dest.Types, opt => opt.Ignore())
-            .ForMember(dest => dest.MinDate, opt => opt.Ignore())
-            .ForMember(dest => dest.MaxDate, opt => opt.Ignore())
-            .ForMember(dest => dest.Months, opt => opt.Ignore())
-            .ForMember(dest => dest.Years, opt => opt.Ignore())
-            .ForMember(dest => dest.Categories, opt => opt.Ignore()); 
-        
-        CreateMap<CreateAccountCommand, Dal.Models.Accounts.Account>()
+        CreateMap<CreateAccountCommand, Dal.Models.Accounts.Account>(MemberList.Destination)
             .ForMember(dest => dest.Id, opt => opt.Ignore());
         
-        CreateMap<Dal.Models.Accounts.Account, GetAccountModel>();
+        CreateMap<Dal.Models.Accounts.Account, GetAccountModel>(MemberList.Destination);
 
-        CreateMap<UpdateAccountCommand, Dal.Models.Accounts.Account>()
-            .ForMember(dest => dest.Balance, opt => opt.Ignore());
+        CreateMap<UpdateAccountCommand, Dal.Models.Accounts.Account>(MemberList.Destination);
     }
 }

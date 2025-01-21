@@ -29,6 +29,7 @@ public class AccountMapper : Profile
         CreateMap<(Guid accountId, UpdateAccountRequest updateAccountRequest), UpdateAccountCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.accountId))
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.updateAccountRequest.Title))
+            .ForMember(dest => dest.Balance, opt => opt.MapFrom(src => src.updateAccountRequest.Balance))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.updateAccountRequest.Description))
             .ForMember(dest => dest.CurrencyId, opt => opt.MapFrom(src => src.updateAccountRequest.CurrencyId));
         
