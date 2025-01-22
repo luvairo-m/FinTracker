@@ -47,11 +47,11 @@ public class CategoryController : ControllerBase
     /// <summary>
     /// Получить информацию о категории
     /// </summary>
-    [HttpGet("{categoryId::guid}")]
+    [HttpGet("{id::guid}")]
     [ProducesResponseType<GetCategoryResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCategory(Guid categoryId)
+    public async Task<IActionResult> GetCategory(Guid id)
     {
-        var category = await mediator.Send(mapper.Map<GetCategoryCommand>(categoryId));
+        var category = await mediator.Send(mapper.Map<GetCategoryCommand>(id));
         
         var response = mapper.Map<GetCategoryResponse>(category);
         
@@ -74,11 +74,11 @@ public class CategoryController : ControllerBase
     /// <summary>
     /// Изменить информацию о категории
     /// </summary>
-    [HttpPut("{categoryId::guid}")]
+    [HttpPatch("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest updateCategoryRequest)
+    public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequest updateCategoryRequest)
     {
-        await mediator.Send(mapper.Map<UpdateCategoryCommand>((categoryId, updateCategoryRequest)));
+        await mediator.Send(mapper.Map<UpdateCategoryCommand>((id, updateCategoryRequest)));
         
         return Ok();
     }
@@ -86,11 +86,11 @@ public class CategoryController : ControllerBase
     /// <summary>
     /// Удалить категорию
     /// </summary>
-    [HttpDelete("{categoryId::guid}")]
+    [HttpDelete("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> RemoveCategory(Guid categoryId)
+    public async Task<IActionResult> RemoveCategory(Guid id)
     {
-        await mediator.Send(mapper.Map<RemoveCategoryCommand>(categoryId));
+        await mediator.Send(mapper.Map<RemoveCategoryCommand>(id));
         
         return Ok();
     }

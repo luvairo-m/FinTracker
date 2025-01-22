@@ -45,11 +45,11 @@ public class AccountController : ControllerBase
     /// <summary>
     /// Получить счёт по идентификатору
     /// </summary>
-    [HttpGet("{accountId:guid}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType<GetAccountResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetAccount([FromRoute] Guid accountId)
+    public async Task<IActionResult> GetAccount([FromRoute] Guid id)
     {
-        var account = await mediator.Send(mapper.Map<GetAccountCommand>(accountId));
+        var account = await mediator.Send(mapper.Map<GetAccountCommand>(id));
         
         var response = mapper.Map<GetAccountResponse>(account);
         
@@ -72,11 +72,11 @@ public class AccountController : ControllerBase
     /// <summary>
     /// Обновить данные счёта
     /// </summary>
-    [HttpPut("{accountId:guid}")]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateAccountAsync([FromRoute] Guid accountId, [FromBody] UpdateAccountRequest updateAccountRequest)
+    public async Task<IActionResult> UpdateAccountAsync([FromRoute] Guid id, [FromBody] UpdateAccountRequest updateAccountRequest)
     {
-        await mediator.Send(mapper.Map<UpdateAccountCommand>((accountId, updateAccountRequest)));
+        await mediator.Send(mapper.Map<UpdateAccountCommand>((id, updateAccountRequest)));
         
         return Ok();
     }
@@ -84,11 +84,11 @@ public class AccountController : ControllerBase
     /// <summary>
     /// Удалить счёт
     /// </summary>
-    [HttpDelete("{accountId:guid}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> RemoveAccountAsync([FromRoute] Guid accountId)
+    public async Task<IActionResult> RemoveAccountAsync([FromRoute] Guid id)
     {
-        await mediator.Send(mapper.Map<RemoveAccountCommand>(accountId));
+        await mediator.Send(mapper.Map<RemoveAccountCommand>(id));
         
         return Ok();
     }

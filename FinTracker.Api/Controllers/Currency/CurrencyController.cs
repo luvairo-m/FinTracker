@@ -47,11 +47,11 @@ public class CurrencyController : ControllerBase
     /// <summary>
     /// Получить информацию о валюте
     /// </summary>
-    [HttpGet("{currencyId:guid}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType<GetCurrencyResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCurrency(Guid currencyId)
+    public async Task<IActionResult> GetCurrency(Guid id)
     {
-        var currency = await mediator.Send(mapper.Map<GetCurrencyCommand>(currencyId));
+        var currency = await mediator.Send(mapper.Map<GetCurrencyCommand>(id));
 
         var response = mapper.Map<GetCurrencyResponse>(currency);
 
@@ -74,11 +74,11 @@ public class CurrencyController : ControllerBase
     /// <summary>
     /// Обновить информацию о валюте
     /// </summary>
-    [HttpPut("{currencyId:guid}")]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateCurrency(Guid currencyId, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
+    public async Task<IActionResult> UpdateCurrency(Guid id, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
     {
-        await mediator.Send(mapper.Map<UpdateCurrencyCommand>((currencyId, updateCurrencyRequest)));
+        await mediator.Send(mapper.Map<UpdateCurrencyCommand>((id, updateCurrencyRequest)));
 
         return Ok();
     }
@@ -86,11 +86,11 @@ public class CurrencyController : ControllerBase
     /// <summary>
     /// Удалить валюту
     /// </summary>
-    [HttpDelete("{currencyId:guid}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> RemoveCurrency(Guid currencyId)
+    public async Task<IActionResult> RemoveCurrency(Guid id)
     {
-        await mediator.Send(mapper.Map<RemoveCurrencyCommand>(currencyId));
+        await mediator.Send(mapper.Map<RemoveCurrencyCommand>(id));
 
         return Ok();
     }

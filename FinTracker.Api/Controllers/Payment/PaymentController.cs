@@ -47,11 +47,11 @@ public class PaymentController : ControllerBase
     /// <summary>
     /// Получить информацию о совершенном платеже
     /// </summary>
-    [HttpGet("{paymentId::guid}")]
+    [HttpGet("{id::guid}")]
     [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayment([FromRoute] Guid paymentId)
+    public async Task<IActionResult> GetPayment([FromRoute] Guid id)
     {
-        var payment = await mediator.Send(mapper.Map<GetPaymentCommand>(paymentId));
+        var payment = await mediator.Send(mapper.Map<GetPaymentCommand>(id));
         
         var response = mapper.Map<GetPaymentResponse>(payment);
 
@@ -74,11 +74,11 @@ public class PaymentController : ControllerBase
     /// <summary>
     /// Изменить информацию о платеже
     /// </summary>
-    [HttpPut("{paymentId::guid}")]
+    [HttpPatch("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
+    public async Task<IActionResult> UpdatePayment(Guid id, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
-        await mediator.Send(mapper.Map<UpdatePaymentCommand>((paymentId, updatePaymentRequest)));
+        await mediator.Send(mapper.Map<UpdatePaymentCommand>((id, updatePaymentRequest)));
         
         return Ok();
     }
@@ -86,11 +86,11 @@ public class PaymentController : ControllerBase
     /// <summary>
     /// Удалить платёж
     /// </summary>
-    [HttpDelete("{paymentId::guid}")]
+    [HttpDelete("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> RemovePayment(Guid paymentId)
+    public async Task<IActionResult> RemovePayment(Guid id)
     {
-        await mediator.Send(mapper.Map<RemovePaymentCommand>(paymentId));
+        await mediator.Send(mapper.Map<RemovePaymentCommand>(id));
 
         return Ok();
     }
