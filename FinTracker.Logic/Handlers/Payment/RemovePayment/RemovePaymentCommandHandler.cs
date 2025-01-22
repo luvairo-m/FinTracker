@@ -1,8 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Transactions;
+using AutoMapper;
 using FinTracker.Dal.Models.Accounts;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
+using FinTracker.Infra.Utils;
+using FinTracker.Logic.Utils;
 using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.RemovePayment;
@@ -23,24 +26,38 @@ internal class RemovePaymentCommandHandler : IRequestHandler<RemovePaymentComman
 
     public async Task Handle(RemovePaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentsResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
-        gettingPaymentsResult.EnsureSuccess();
+        using var transactionScope = TransactionUtils.CreateTransactionScope(IsolationLevel.RepeatableRead);
         
-        var existingPayment = gettingPaymentsResult.Result.FirstOrDefault();
+        var getPaymentResult = await paymentRepository.SearchAsync(new PaymentSearch { Id = request.Id });
+        getPaymentResult.EnsureSuccess();
+        
+        var payment = getPaymentResult.Result.FirstOrDefault();
 
-        var gettingAccountsResult = await accountRepository.SearchAsync(mapper.Map<AccountSearch>(existingPayment));
-        gettingAccountsResult.EnsureSuccess();
+        if (payment.AccountId != null)
+        {
+            await this.RemovePaymentFromAccount(payment);
+        }
         
-        var existingAccount = gettingAccountsResult.Result.FirstOrDefault();
+        var deletePaymentResult = await paymentRepository.RemoveAsync(request.Id);
+        deletePaymentResult.EnsureSuccess();
         
-        var deletionPaymentResult = await paymentRepository.RemoveAsync(request.Id);
-        deletionPaymentResult.EnsureSuccess();
+        transactionScope.Complete();
+    }
+
+    private async Task RemovePaymentFromAccount(Dal.Models.Payments.Payment payment)
+    {
+        var getAccountResult = await accountRepository.SearchAsync(new AccountSearch { Id = payment!.AccountId });
+        getAccountResult.EnsureSuccess();
         
-        existingAccount!.Balance = existingPayment!.Type == OperationType.Outcome 
-            ? existingAccount.Balance + existingPayment.Amount 
-            : existingAccount.Balance - existingPayment.Amount;
+        var account = getAccountResult.Result.FirstOrDefault();
         
-        var updatingAccountResult = await accountRepository.UpdateAsync(existingAccount);
-        updatingAccountResult.EnsureSuccess();
+        PaymentUtils.EnsureRevertPayment(account.Balance.Value, payment.Amount.Value, payment.Type.Value);
+            
+        account!.Balance = payment!.Type == OperationType.Outcome 
+            ? account.Balance + payment.Amount 
+            : account.Balance - payment.Amount;
+        
+        var updateAccountResult = await accountRepository.UpdateAsync(account);
+        updateAccountResult.EnsureSuccess();
     }
 }
