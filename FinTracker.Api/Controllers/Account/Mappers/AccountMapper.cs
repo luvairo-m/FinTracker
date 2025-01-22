@@ -11,6 +11,7 @@ using FinTracker.Logic.Models.Account;
 
 namespace FinTracker.Api.Controllers.Account.Mappers;
 
+// ReSharper disable once UnusedType.Global
 public class AccountMapper : Profile
 {
     public AccountMapper()
@@ -20,7 +21,7 @@ public class AccountMapper : Profile
         CreateMap<CreateAccountModel, CreateAccountResponse>();
         
         CreateMap<Guid, GetAccountCommand>()
-            .ForMember(dest => dest.AccountId, y => y.MapFrom(z => z));
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src));
         
         CreateMap<GetAccountModel, GetAccountResponse>();
         
@@ -34,6 +35,6 @@ public class AccountMapper : Profile
             .ForMember(dest => dest.CurrencyId, opt => opt.MapFrom(src => src.updateAccountRequest.CurrencyId));
         
         CreateMap<Guid, RemoveAccountCommand>()
-            .ForMember(dest => dest.AccountId, y => y.MapFrom(z => z));
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src));
     }
 }

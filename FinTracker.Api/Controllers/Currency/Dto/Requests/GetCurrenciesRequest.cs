@@ -4,6 +4,6 @@ namespace FinTracker.Api.Controllers.Currency.Dto.Requests;
 
 public class GetCurrenciesRequest
 {
-    [MaxLength(256)]
+    [MaxLength(64)]
     public string TitleSubstring { get; init; }
 }

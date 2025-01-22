@@ -8,7 +8,7 @@ public static class TransactionUtils
     {
         var transactionOptions = new TransactionOptions
         {
-            IsolationLevel = IsolationLevel.ReadCommitted,
+            IsolationLevel = isolationLevel,
             Timeout = TransactionManager.MaximumTimeout
         };
 

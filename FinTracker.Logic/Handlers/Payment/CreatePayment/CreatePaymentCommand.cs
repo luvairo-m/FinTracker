@@ -14,7 +14,7 @@ public class CreatePaymentCommand : IRequest<CreatePaymentModel>
 
     public Guid AccountId { get; set; }
     
-    public Guid CategoryId { get; set; }
-
     public OperationType Type { get; set; }
+    
+    public Guid[] Categories { get; set; }
 }

@@ -12,16 +12,15 @@ public class CategoryMapper : Profile
 {
     public CategoryMapper()
     {
-        CreateMap<CreateCategoryCommand, Dal.Models.Categories.Category>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
-
-        CreateMap<GetCategoriesCommand, CategorySearch>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.TitleSubstring, opt => opt.MapFrom(src => src.TitleSubstring));
-
         CreateMap<GetCategoryCommand, CategorySearch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CategoryId))
             .ForMember(dest => dest.TitleSubstring, opt => opt.Ignore());
+
+        CreateMap<GetCategoriesCommand, CategorySearch>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
+        
+        CreateMap<CreateCategoryCommand, Dal.Models.Categories.Category>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
         
         CreateMap<Dal.Models.Categories.Category, GetCategoryModel>();
         

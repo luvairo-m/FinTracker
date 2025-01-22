@@ -33,8 +33,8 @@ public abstract class RepositoryBase<TModel, TSearchModel>
         var insertScript = @$"INSERT INTO {TableName} ({typeof(TModel).GetColumnNames().AsCommaSeparated()})
                               OUTPUT INSERTED.{KeyColumnName}
                               VALUES (NEWID(), {typeof(TModel).GetParameterNames(withKeys: false).AsCommaSeparated()})";
-        
-        using var connection = await this.connectionFactory.CreateAsync();
+
+        await using var connection = await this.connectionFactory.CreateAsync();
         
         try
         {
@@ -79,7 +79,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
                               OFFSET {skip} ROWS
                               FETCH NEXT {take} ROWS ONLY";
 
-        using var connection = await this.connectionFactory.CreateAsync();
+        await using var connection = await this.connectionFactory.CreateAsync();
                 
         try
         { 
@@ -110,7 +110,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
     {
         var updateScript = $"UPDATE {TableName} {update.ToSetExpression()} WHERE {KeyColumnName} = @Id";
 
-        using var connection = await this.connectionFactory.CreateAsync();
+        await using var connection = await this.connectionFactory.CreateAsync();
 
         try
         { 
@@ -146,7 +146,7 @@ public abstract class RepositoryBase<TModel, TSearchModel>
     {
         var removeScript = $"DELETE FROM {TableName} WHERE {KeyColumnName} = @Id";
 
-        using var connection = await this.connectionFactory.CreateAsync();
+        await using var connection = await this.connectionFactory.CreateAsync();
         
         try
         { 

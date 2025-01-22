@@ -17,4 +17,6 @@ public struct GetPaymentModel
     public OperationType Type { get; init; }
 
     public DateTime Date { get; init; }
+    
+    public Guid[] Categories { get; set; }
 }

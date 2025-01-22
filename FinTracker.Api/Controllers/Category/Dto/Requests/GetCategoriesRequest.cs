@@ -4,6 +4,6 @@ namespace FinTracker.Api.Controllers.Category.Dto.Requests;
 
 public class GetCategoriesRequest
 {
-    [MaxLength(512)]
+    [MaxLength(128)]
     public string TitleSubstring { get; set; }
 }

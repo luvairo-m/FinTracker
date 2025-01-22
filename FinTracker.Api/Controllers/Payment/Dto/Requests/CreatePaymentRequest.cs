@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using FinTracker.Dal.Models.Payments;
 
 namespace FinTracker.Api.Controllers.Payment.Dto.Requests;
 
-public class CreatePaymentRequest : IValidatableObject
+public class CreatePaymentRequest
 {
     [Required]
     [MaxLength(128)]
@@ -15,26 +14,14 @@ public class CreatePaymentRequest : IValidatableObject
     public string Description { get; init; }
     
     [Required]
+    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
     public decimal? Amount { get; init; }
     
     [Required]
     public Guid? AccountId { get; init; }
 
     [Required]
-    public Guid? CategoryId { get; init; }
-
-    [Required]
     public OperationType? Type { get; init; }
     
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        var validationResults = Array.Empty<ValidationResult>();
-
-        if (Amount < 0)
-        {
-            return [new ValidationResult("Сумма платежа не может быть отрицательной", [nameof(Amount)])];
-        }
-
-        return validationResults;
-    }
+    public Guid[] Categories { get; init; }
 }

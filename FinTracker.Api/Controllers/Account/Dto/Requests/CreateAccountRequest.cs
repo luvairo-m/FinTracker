@@ -9,7 +9,7 @@ public class CreateAccountRequest
     [MaxLength(128)]
     public string Title { get; init; }
 
-    [Required]
+    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
     public decimal? Balance { get; init; }
 
     [MaxLength(1024)]

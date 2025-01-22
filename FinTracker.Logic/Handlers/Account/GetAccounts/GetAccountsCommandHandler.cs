@@ -7,6 +7,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Account.GetAccounts;
 
+// ReSharper disable once UnusedType.Global
 internal class GetAccountsCommandHandler : IRequestHandler<GetAccountsCommand, ICollection<GetAccountModel>>
 {
     private readonly IAccountRepository accountRepository;

@@ -11,6 +11,7 @@ using FinTracker.Logic.Models.Payment;
 
 namespace FinTracker.Api.Controllers.Payment.Mappers;
 
+// ReSharper disable once UnusedType.Global
 public class PaymentMapper : Profile
 {
     public PaymentMapper()
@@ -32,7 +33,8 @@ public class PaymentMapper : Profile
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.updatePaymentRequest.Description))
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.updatePaymentRequest.Amount))
             .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.updatePaymentRequest.AccountId))
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.updatePaymentRequest.Type));
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.updatePaymentRequest.Type))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.updatePaymentRequest.Date));
         
         CreateMap<Guid, RemovePaymentCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));

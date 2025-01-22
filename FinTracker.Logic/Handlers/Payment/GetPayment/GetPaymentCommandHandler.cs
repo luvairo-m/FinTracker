@@ -6,6 +6,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.GetPayment;
 
+// ReSharper disable once UnusedType.Global
 internal class GetPaymentCommandHandler : IRequestHandler<GetPaymentCommand, GetPaymentModel>
 {
     private readonly IPaymentRepository paymentRepository;

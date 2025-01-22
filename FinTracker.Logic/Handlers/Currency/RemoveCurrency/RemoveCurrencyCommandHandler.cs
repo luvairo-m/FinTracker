@@ -3,6 +3,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Currency.RemoveCurrency;
 
+// ReSharper disable once UnusedType.Global
 internal class RemoveCurrencyCommandHandler : IRequestHandler<RemoveCurrencyCommand>
 {
     private readonly ICurrencyRepository currencyRepository;

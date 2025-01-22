@@ -3,6 +3,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Account.RemoveAccount;
 
+// ReSharper disable once UnusedType.Global
 internal class RemoveAccountCommandHandler : IRequestHandler<RemoveAccountCommand>
 {
     private readonly IAccountRepository accountRepository;

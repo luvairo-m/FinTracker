@@ -7,6 +7,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Account.UpdateAccount;
 
+// ReSharper disable once UnusedType.Global
 internal class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand>
 {
     private readonly IAccountRepository accountRepository;

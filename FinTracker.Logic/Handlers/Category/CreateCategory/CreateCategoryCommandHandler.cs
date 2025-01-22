@@ -5,6 +5,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Category.CreateCategory;
 
+// ReSharper disable once UnusedType.Global
 internal class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryModel>
 {
     private readonly ICategoryRepository categoryRepository;

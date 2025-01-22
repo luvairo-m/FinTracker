@@ -7,6 +7,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.UpdatePayment;
 
+// ReSharper disable once UnusedType.Global
 internal class UpdatePaymentCommandHandler : IRequestHandler<UpdatePaymentCommand>
 {
     private readonly IPaymentRepository paymentRepository;

@@ -11,6 +11,7 @@ using FinTracker.Logic.Models.Currency;
 
 namespace FinTracker.Api.Controllers.Currency.Mappers;
 
+// ReSharper disable once UnusedType.Global
 public class CurrencyMapper : Profile
 {
     public CurrencyMapper()

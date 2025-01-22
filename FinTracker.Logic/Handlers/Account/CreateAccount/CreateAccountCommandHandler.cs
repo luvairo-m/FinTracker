@@ -5,6 +5,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Account.CreateAccount;
 
+// ReSharper disable once UnusedType.Global
 internal class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, CreateAccountModel>
 {
     private readonly IAccountRepository accountRepository;

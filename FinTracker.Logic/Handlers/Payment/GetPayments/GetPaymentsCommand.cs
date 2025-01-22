@@ -23,4 +23,6 @@ public class GetPaymentsCommand : IRequest<ICollection<GetPaymentModel>>
     public int[] Years { get; set; }
 
     public Guid? AccountId { get; set; }
+    
+    public Guid[] Categories { get; set; }
 }

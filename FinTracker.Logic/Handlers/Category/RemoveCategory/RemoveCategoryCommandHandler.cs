@@ -3,6 +3,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Category.RemoveCategory;
 
+// ReSharper disable once UnusedType.Global
 internal class RemoveCategoryCommandHandler : IRequestHandler<RemoveCategoryCommand>
 {
     private readonly ICategoryRepository categoryRepository;
