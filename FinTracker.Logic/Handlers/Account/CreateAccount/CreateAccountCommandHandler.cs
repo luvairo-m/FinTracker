@@ -24,6 +24,6 @@ internal class CreateAccountCommandHandler : IRequestHandler<CreateAccountComman
         var createAccountResult = await accountRepository.AddAsync(account);
         createAccountResult.EnsureSuccess();
 
-        return new CreateAccountModel { Id = createAccountResult.Result };
+        return new CreateAccountModel { AccountId = createAccountResult.Result };
     }
 }

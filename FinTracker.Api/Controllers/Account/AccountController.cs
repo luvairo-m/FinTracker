@@ -35,11 +35,13 @@ public class AccountController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreateAccountResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateAccountAsync([FromBody] CreateAccountRequest createAccountRequest)
+    public async Task<IActionResult> CreateAccountAsync([FromRoute] string version, [FromBody] CreateAccountRequest createAccountRequest)
     {
         var createdAccount = await mediator.Send(mapper.Map<CreateAccountCommand>(createAccountRequest));
+
+        var response = mapper.Map<CreateAccountResponse>(createdAccount);
         
-        return Ok(mapper.Map<CreateAccountResponse>(createdAccount));
+        return CreatedAtAction(nameof(GetAccount), new { version, id = response.AccountId }, response);
     }
 
     /// <summary>

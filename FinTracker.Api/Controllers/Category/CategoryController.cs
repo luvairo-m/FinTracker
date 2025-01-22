@@ -35,13 +35,13 @@ public class CategoryController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
+    public async Task<IActionResult> CreateCategory([FromRoute] string version, [FromBody] CreateCategoryRequest createCategoryRequest)
     {
         var createdCategory = await mediator.Send(mapper.Map<CreateCategoryCommand>(createCategoryRequest));
         
         var response = mapper.Map<CreateCategoryResponse>(createdCategory);
-        
-        return Ok(response);
+
+        return CreatedAtAction(nameof(GetCategory), new { version, id = response.CategoryId }, response);
     }
 
     /// <summary>

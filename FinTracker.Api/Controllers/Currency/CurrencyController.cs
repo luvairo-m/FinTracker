@@ -35,13 +35,13 @@ public class CurrencyController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreateCurrencyResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateCurrency([FromBody] CreateCurrencyRequest createCurrencyRequest)
+    public async Task<IActionResult> CreateCurrency([FromRoute] string version, [FromBody] CreateCurrencyRequest createCurrencyRequest)
     {
         var createdCurrency = await mediator.Send(mapper.Map<CreateCurrencyCommand>(createCurrencyRequest));
 
         var response = mapper.Map<CreateCurrencyResponse>(createdCurrency);
 
-        return Ok(response);
+        return CreatedAtAction(nameof(GetCurrency), new { version, id = response.CurrencyId }, response);
     }
 
     /// <summary>

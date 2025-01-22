@@ -2,5 +2,5 @@
 
 public struct CreateAccountModel
 {
-    public Guid Id { get; set; }
+    public Guid AccountId { get; set; }
 }

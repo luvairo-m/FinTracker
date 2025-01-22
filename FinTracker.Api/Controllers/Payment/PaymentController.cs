@@ -35,13 +35,13 @@ public class PaymentController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<CreatePaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest createPaymentRequest)
+    public async Task<IActionResult> CreatePayment([FromRoute] string version, [FromBody] CreatePaymentRequest createPaymentRequest)
     {
         var createdPayment = await mediator.Send(mapper.Map<CreatePaymentCommand>(createPaymentRequest));
         
         var response = mapper.Map<CreatePaymentResponse>(createdPayment);
         
-        return Ok(response);
+        return CreatedAtAction(nameof(GetPayment), new { version, id = response.PaymentId }, response);
     }
 
     /// <summary>
