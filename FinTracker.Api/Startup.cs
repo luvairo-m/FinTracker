@@ -67,10 +67,9 @@ public class Startup
             app.UseSwaggerDocumentation();
         }
 
-        app.UseRouting();
-
         app.UseMiddleware<ErrorHandlingMiddleware>();
-        
+
+        app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());
     }
 }

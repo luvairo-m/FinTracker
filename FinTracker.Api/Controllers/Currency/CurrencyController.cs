@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Currency.Dto.Requests;
 using FinTracker.Api.Controllers.Currency.Dto.Responses;
-using FinTracker.Infra.Utils;
+using FinTracker.Api.Models;
 using FinTracker.Logic.Handlers.Currency.CreateCurrency;
 using FinTracker.Logic.Handlers.Currency.GetCurrencies;
 using FinTracker.Logic.Handlers.Currency.GetCurrency;

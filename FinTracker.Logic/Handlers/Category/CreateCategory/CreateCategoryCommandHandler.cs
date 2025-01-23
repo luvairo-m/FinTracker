@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Logic.Models.Category;
 using MediatR;

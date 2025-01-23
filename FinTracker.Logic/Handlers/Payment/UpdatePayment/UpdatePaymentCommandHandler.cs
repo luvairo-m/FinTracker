@@ -1,4 +1,4 @@
-﻿using System.Transactions;
+using System.Transactions;
 using FinTracker.Dal.Logic.Extensions;
 using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Payments;

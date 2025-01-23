@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Category.Dto.Requests;
 using FinTracker.Api.Controllers.Category.Dto.Responses;
-using FinTracker.Infra.Utils;
+using FinTracker.Api.Models;
 using FinTracker.Logic.Handlers.Category.CreateCategory;
 using FinTracker.Logic.Handlers.Category.GetCategories;
 using FinTracker.Logic.Handlers.Category.GetCategory;

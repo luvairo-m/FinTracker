@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
-using FinTracker.Infra.Utils;
+using FinTracker.Api.Models;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;

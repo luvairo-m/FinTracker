@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FinTracker.Dal.Repositories.Currencies;
 using FinTracker.Logic.Models.Currency;
 using MediatR;

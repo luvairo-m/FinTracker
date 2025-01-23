@@ -1,4 +1,6 @@
-﻿namespace FinTracker.Infra.Utils;
+﻿using System.Collections.Generic;
+
+namespace FinTracker.Api.Models;
 
 public class ItemsResponse<T>
 {
