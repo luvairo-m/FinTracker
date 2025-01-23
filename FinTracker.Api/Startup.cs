@@ -4,6 +4,7 @@ using FinTracker.Api.Configuration.Swagger;
 using FinTracker.Api.Controllers.Category.Mappers;
 using FinTracker.Dal.Migrations;
 using FinTracker.Dal;
+using FinTracker.Logic.Extensions;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Builder;
@@ -50,6 +51,8 @@ public class Startup
         
         services.AddSwaggerDocumentation();
 
+        services.AddLogic();
+        
         services.AddDal();
         
         services.AddSingleton<ILog>(new ConsoleLog());

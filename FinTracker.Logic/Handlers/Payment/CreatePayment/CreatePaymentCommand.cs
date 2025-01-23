@@ -12,7 +12,7 @@ public class CreatePaymentCommand : IRequest<CreatePaymentModel>
     
     public decimal Amount { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
     
     public OperationType Type { get; set; }
     

@@ -34,7 +34,7 @@ public class AccountController : ControllerBase
     /// Создать счёт
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreateAccountResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(CreateAccountResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateAccountAsync([FromRoute] string version, [FromBody] CreateAccountRequest createAccountRequest)
     {
         var createdAccount = await mediator.Send(mapper.Map<CreateAccountCommand>(createAccountRequest));
@@ -48,7 +48,7 @@ public class AccountController : ControllerBase
     /// Получить счёт по идентификатору
     /// </summary>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType<GetAccountResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(GetAccountResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAccount([FromRoute] Guid id)
     {
         var account = await mediator.Send(mapper.Map<GetAccountCommand>(id));
@@ -62,7 +62,7 @@ public class AccountController : ControllerBase
     /// Получить счета
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<ItemsResponse<GetAccountResponse>>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemsResponse<GetAccountResponse>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccountsRequest request)
     {
         var accounts = await mediator.Send(mapper.Map<GetAccountsCommand>(request));

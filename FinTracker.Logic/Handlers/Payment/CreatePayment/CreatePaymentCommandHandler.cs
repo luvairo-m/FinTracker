@@ -1,12 +1,12 @@
 ﻿using System.Transactions;
 using AutoMapper;
+using FinTracker.Dal.Logic.Extensions;
 using FinTracker.Dal.Models.Accounts;
-using FinTracker.Dal.Models.Payments;
 using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
 using FinTracker.Infra.Utils;
+using FinTracker.Logic.Extensions;
 using FinTracker.Logic.Models.Payment;
-using FinTracker.Logic.Utils;
 using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.CreatePayment;
@@ -28,26 +28,21 @@ internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentComman
     public async Task<CreatePaymentModel> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
         using var transactionScope = TransactionUtils.CreateTransactionScope(IsolationLevel.RepeatableRead);
-        
-        var getAccountResult = await accountRepository.SearchAsync(new AccountSearch { Id = request.AccountId });
-        getAccountResult.EnsureSuccess();
 
-        var account = getAccountResult.Result.First();
+        var payment = mapper.Map<Dal.Models.Payments.Payment>(request);
 
-        PaymentUtils.EnsureApplyPayment(account.Balance.Value, request.Amount, request.Type);
+        if (request.AccountId != null)
+        {
+            var account = (await this.accountRepository.SearchAsync(AccountSearch.ById(request.AccountId.Value))).FirstOrDefault();
+            account.ApplyPayment(payment);
         
-        var addPaymentResult = await paymentRepository.AddAsync(mapper.Map<Dal.Models.Payments.Payment>(request));
-        addPaymentResult.EnsureSuccess();
+            (await this.accountRepository.UpdateAsync(account)).EnsureSuccess();
+        }
         
-        account!.Balance = request.Type == OperationType.Outcome
-            ? account.Balance - request.Amount 
-            : account.Balance + request.Amount;
-
-        var updateAccountResult = await accountRepository.UpdateAsync(account);
-        updateAccountResult.EnsureSuccess();
+        var paymentId = (await paymentRepository.AddAsync(payment)).GetValueOrThrow();
         
         transactionScope.Complete();
 
-        return new CreatePaymentModel { PaymentId = addPaymentResult.Result };
+        return new CreatePaymentModel { PaymentId = paymentId };
     }
 }

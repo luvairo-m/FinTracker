@@ -14,10 +14,9 @@ public class CreatePaymentRequest
     public string Description { get; init; }
     
     [Required]
-    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    [Range(typeof(decimal), "1", "79228162514264337593543950335")]
     public decimal? Amount { get; init; }
     
-    [Required]
     public Guid? AccountId { get; init; }
 
     [Required]

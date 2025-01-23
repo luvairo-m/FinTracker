@@ -34,7 +34,7 @@ public class CategoryController : ControllerBase
     /// Добавить категорию
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreateCategoryResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(CreateCategoryResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCategory([FromRoute] string version, [FromBody] CreateCategoryRequest createCategoryRequest)
     {
         var createdCategory = await mediator.Send(mapper.Map<CreateCategoryCommand>(createCategoryRequest));
@@ -48,7 +48,7 @@ public class CategoryController : ControllerBase
     /// Получить информацию о категории
     /// </summary>
     [HttpGet("{id::guid}")]
-    [ProducesResponseType<GetCategoryResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(GetCategoryResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCategory(Guid id)
     {
         var category = await mediator.Send(mapper.Map<GetCategoryCommand>(id));
@@ -62,7 +62,7 @@ public class CategoryController : ControllerBase
     /// Получить категории
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<ItemsResponse<GetCategoryResponse>>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemsResponse<GetCategoryResponse>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCategories([FromQuery] GetCategoriesRequest getCategoriesRequest)
     {
         var categories = await mediator.Send(mapper.Map<GetCategoriesCommand>(getCategoriesRequest));

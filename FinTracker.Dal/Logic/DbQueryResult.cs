@@ -1,6 +1,7 @@
 ﻿using FinTracker.Dal.Logic.Exceptions;
 
 namespace FinTracker.Dal.Logic;
+
 #pragma warning disable SA1402 // File may only contain a single class
 public enum DbQueryResultStatus
 {
@@ -21,6 +22,14 @@ public class DbQueryResult
         this.Status = status;
         this.ErrorMessage = errorMessage;
     }
+    
+    public void EnsureSuccess()
+    {
+        if (this.Status != DbQueryResultStatus.Ok)
+        {
+            throw new DatabaseQueryException(this.ErrorMessage);
+        }
+    }
 
     public static DbQueryResult Ok()
     {
@@ -35,14 +44,6 @@ public class DbQueryResult
     public static DbQueryResult NotFound(string errorMessage)
     {
         return new DbQueryResult(DbQueryResultStatus.NotFound, errorMessage);
-    }
-
-    public void EnsureSuccess()
-    {
-        if (this.Status != DbQueryResultStatus.Ok)
-        {
-            throw new DatabaseQueryException(this.ErrorMessage);
-        }
     }
 }
 
@@ -61,6 +62,20 @@ public class DbQueryResult<T>
         this.ErrorMessage = errorMessage;
     }
 
+    public void EnsureSuccess()
+    {
+        if (this.Status != DbQueryResultStatus.Ok)
+        {
+            throw new DatabaseQueryException(this.ErrorMessage);
+        }
+    }
+
+    public T GetValueOrThrow()
+    {
+        this.EnsureSuccess();
+        return Result;
+    }
+    
     public static DbQueryResult<T> Ok(T value)
     {
         return new DbQueryResult<T>(value, DbQueryResultStatus.Ok);
@@ -79,13 +94,5 @@ public class DbQueryResult<T>
     public static DbQueryResult<T> Conflict(string errorMessage)
     {
         return new DbQueryResult<T>(default, DbQueryResultStatus.Conflict, errorMessage);
-    }
-
-    public void EnsureSuccess()
-    {
-        if (this.Status != DbQueryResultStatus.Ok)
-        {
-            throw new DatabaseQueryException(this.ErrorMessage);
-        }
     }
 }

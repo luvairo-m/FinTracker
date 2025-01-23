@@ -54,4 +54,9 @@ public class PaymentSearch
     
     [Ignored]
     public ICollection<Guid> Categories { get; set; }
+    
+    public static PaymentSearch ById(Guid id)
+    {
+        return new PaymentSearch { Id = id };
+    }
 }

@@ -34,7 +34,7 @@ public class PaymentController : ControllerBase
     /// Добавить платёж
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreatePaymentResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(CreatePaymentResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreatePayment([FromRoute] string version, [FromBody] CreatePaymentRequest createPaymentRequest)
     {
         var createdPayment = await mediator.Send(mapper.Map<CreatePaymentCommand>(createPaymentRequest));
@@ -48,7 +48,7 @@ public class PaymentController : ControllerBase
     /// Получить информацию о совершенном платеже
     /// </summary>
     [HttpGet("{id::guid}")]
-    [ProducesResponseType<GetPaymentResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(GetPaymentResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetPayment([FromRoute] Guid id)
     {
         var payment = await mediator.Send(mapper.Map<GetPaymentCommand>(id));
@@ -62,7 +62,7 @@ public class PaymentController : ControllerBase
     /// Получить платежи
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<ItemsResponse<GetPaymentResponse>>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemsResponse<GetPaymentResponse>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
     {
         var payments = await mediator.Send(mapper.Map<GetPaymentsCommand>(request));

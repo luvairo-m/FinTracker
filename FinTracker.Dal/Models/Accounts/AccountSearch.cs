@@ -13,4 +13,9 @@ public class AccountSearch
     
     [Column("CurrencyId")]
     public Guid? CurrencyId { get; set; }
+
+    public static AccountSearch ById(Guid id)
+    {
+        return new AccountSearch { Id = id };
+    }
 }

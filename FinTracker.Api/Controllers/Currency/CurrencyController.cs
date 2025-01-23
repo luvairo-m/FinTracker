@@ -34,7 +34,7 @@ public class CurrencyController : ControllerBase
     /// Добавить валюту
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreateCurrencyResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(CreateCurrencyResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCurrency([FromRoute] string version, [FromBody] CreateCurrencyRequest createCurrencyRequest)
     {
         var createdCurrency = await mediator.Send(mapper.Map<CreateCurrencyCommand>(createCurrencyRequest));
@@ -48,7 +48,7 @@ public class CurrencyController : ControllerBase
     /// Получить информацию о валюте
     /// </summary>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType<GetCurrencyResponse>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(GetCurrencyResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCurrency(Guid id)
     {
         var currency = await mediator.Send(mapper.Map<GetCurrencyCommand>(id));
@@ -62,7 +62,7 @@ public class CurrencyController : ControllerBase
     /// Получить список валют
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<ItemsResponse<GetCurrencyResponse>>((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemsResponse<GetCurrencyResponse>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCurrencies([FromQuery] GetCurrenciesRequest getCurrenciesRequest)
     {
         var currencies = await mediator.Send(mapper.Map<GetCurrenciesCommand>(getCurrenciesRequest));

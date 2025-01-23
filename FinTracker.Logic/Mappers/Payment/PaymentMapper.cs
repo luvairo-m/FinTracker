@@ -3,7 +3,6 @@ using FinTracker.Dal.Models.Payments;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;
-using FinTracker.Logic.Handlers.Payment.UpdatePayment;
 using FinTracker.Logic.Models.Payment;
 
 namespace FinTracker.Logic.Mappers.Payment;
@@ -24,8 +23,5 @@ public class PaymentMapper : Profile
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTime.UtcNow));
         
         CreateMap<Dal.Models.Payments.Payment, GetPaymentModel>();
-        
-        CreateMap<UpdatePaymentCommand, Dal.Models.Payments.Payment>()
-            .ForMember(dest => dest.Categories, opt => opt.Ignore());
     }
 }
