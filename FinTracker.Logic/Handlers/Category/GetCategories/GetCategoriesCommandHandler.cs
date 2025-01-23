@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinTracker.Dal.Logic;
 using FinTracker.Dal.Models.Categories;
 using FinTracker.Dal.Repositories.Categories;
 using FinTracker.Logic.Models.Category;
@@ -6,7 +7,8 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Category.GetCategories;
 
-internal class GetCategoriesCommandHandler : IRequestHandler<GetCategoriesCommand, GetCategoriesModel>
+// ReSharper disable once UnusedType.Global
+internal class GetCategoriesCommandHandler : IRequestHandler<GetCategoriesCommand, ICollection<GetCategoryModel>>
 {
     private readonly ICategoryRepository categoryRepository;
     private readonly IMapper mapper;
@@ -17,14 +19,17 @@ internal class GetCategoriesCommandHandler : IRequestHandler<GetCategoriesComman
         this.mapper = mapper;
     }
 
-    public async Task<GetCategoriesModel> Handle(GetCategoriesCommand request, CancellationToken cancellationToken)
+    public async Task<ICollection<GetCategoryModel>> Handle(GetCategoriesCommand request, CancellationToken cancellationToken)
     {
-        var gettingCategoriesResult = await categoryRepository.SearchAsync(new CategorySearch());
-        gettingCategoriesResult.EnsureSuccess();
-        
-        return new GetCategoriesModel
+        var getResult = await categoryRepository.SearchAsync(mapper.Map<CategorySearch>(request));
+
+        if (getResult.Status == DbQueryResultStatus.NotFound)
         {
-            Categories = mapper.Map<ICollection<GetCategoryModel>>(gettingCategoriesResult.Result)
-        };
+            return Array.Empty<GetCategoryModel>();
+        }
+        
+        getResult.EnsureSuccess();
+
+        return mapper.Map<ICollection<GetCategoryModel>>(getResult.Result);
     }
 }

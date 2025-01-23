@@ -21,6 +21,7 @@ internal static class SwaggerExtension
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var commentsFileName = Assembly.GetExecutingAssembly().GetName().Name + ".XML";
             var commentsFile = Path.Combine(baseDirectory, commentsFileName);
+            
             options.IncludeXmlComments(commentsFile);
         });
 
@@ -31,9 +32,9 @@ internal static class SwaggerExtension
     {
         app.UseSwagger();
 
-        app.UseSwaggerUI(c =>
+        app.UseSwaggerUI(setup =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTracker API");
+            setup.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTracker API");
         });
 
         return app;

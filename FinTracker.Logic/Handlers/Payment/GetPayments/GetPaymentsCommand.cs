@@ -4,24 +4,10 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.GetPayments;
 
-public class GetPaymentsCommand : IRequest<GetPaymentsModel>
+public class GetPaymentsCommand : IRequest<ICollection<GetPaymentModel>>
 {
-    public GetPaymentsCommand(Guid? id, decimal? minAmount, decimal? maxAmount, OperationType[] types, DateTime? minDate, 
-        DateTime? maxDate, int[] months, int[] years, Guid? billId)
-    {
-        Id = id;
-        MinAmount = minAmount;
-        MaxAmount = maxAmount;
-        Types = types;
-        MinDate = minDate;
-        MaxDate = maxDate;
-        Months = months;
-        Years = years;
-        BillId = billId;
-    }
-    
-    public Guid? Id { get; set; }
-    
+    public string TitleSubstring { get; set; }
+
     public decimal? MinAmount { get; set; }
     
     public decimal? MaxAmount { get; set; }
@@ -36,5 +22,7 @@ public class GetPaymentsCommand : IRequest<GetPaymentsModel>
 
     public int[] Years { get; set; }
 
-    public Guid? BillId { get; set; }
+    public Guid? AccountId { get; set; }
+    
+    public Guid[] Categories { get; set; }
 }

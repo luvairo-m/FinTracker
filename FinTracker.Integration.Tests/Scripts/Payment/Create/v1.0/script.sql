@@ -9,10 +9,10 @@ CREATE TABLE [dbo].[Payment]
     [Id] [uniqueidentifier] NOT NULL,
     [Title] [nvarchar](128) NOT NULL,
     [Description] [nvarchar](1024) NULL,
-    [Amount] [int] NOT NULL,
+    [Amount] [money] NOT NULL,
     [Type] [tinyint] NOT NULL,
     [Date] [datetime] NOT NULL,
-    [BillId] [uniqueidentifier] NOT NULL,
+    [AccountId] [uniqueidentifier] NOT NULL,
     CONSTRAINT [PK_Payment] PRIMARY KEY CLUSTERED ( [Id] ASC )
     WITH 
     (

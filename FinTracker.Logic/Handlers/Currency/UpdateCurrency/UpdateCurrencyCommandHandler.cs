@@ -4,7 +4,8 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Currency.UpdateCurrency;
 
-public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyCommand>
+// ReSharper disable once UnusedType.Global
+internal class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyCommand>
 {
     private readonly ICurrencyRepository currencyRepository;
     private readonly IMapper mapper;

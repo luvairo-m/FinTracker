@@ -49,9 +49,14 @@ public class PaymentSearch
     [Column("Date", Template = "YEAR({0})")]
     public int[] Years { get; set; }
     
-    [Column("BillId")]
-    public Guid? BillId { get; set; }
+    [Column("AccountId")]
+    public Guid? AccountId { get; set; }
     
     [Ignored]
     public ICollection<Guid> Categories { get; set; }
+    
+    public static PaymentSearch ById(Guid id)
+    {
+        return new PaymentSearch { Id = id };
+    }
 }

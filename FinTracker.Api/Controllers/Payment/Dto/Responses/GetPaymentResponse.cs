@@ -13,9 +13,11 @@ public class GetPaymentResponse
     
     public decimal Amount { get; init; }
 
-    public Guid BillId { get; init; }
+    public Guid AccountId { get; init; }
     
     public OperationType Type { get; init; }
 
     public DateTime Date { get; init; }
+    
+    public Guid[] Categories { get; set; }
 }

@@ -1,8 +1,8 @@
-﻿using System.Data;
+﻿using System.Data.Common;
 
 namespace FinTracker.Dal.Logic.Connections;
 
 public interface ISqlConnectionFactory
 {
-    Task<IDbConnection> CreateAsync(bool opened = true);
+    Task<DbConnection> CreateAsync(bool opened = true);
 }

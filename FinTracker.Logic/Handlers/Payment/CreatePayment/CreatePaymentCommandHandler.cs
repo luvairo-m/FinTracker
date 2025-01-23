@@ -1,52 +1,48 @@
-﻿using FinTracker.Dal.Models.Bills;
-using FinTracker.Dal.Repositories.Bills;
+using System.Transactions;
+using AutoMapper;
+using FinTracker.Dal.Logic.Extensions;
+using FinTracker.Dal.Models.Accounts;
+using FinTracker.Dal.Repositories.Accounts;
 using FinTracker.Dal.Repositories.Payments;
+using FinTracker.Infra.Utils;
+using FinTracker.Logic.Extensions;
 using FinTracker.Logic.Models.Payment;
 using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.CreatePayment;
 
+// ReSharper disable once UnusedType.Global
 internal class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, CreatePaymentModel>
 {
     private readonly IPaymentRepository paymentRepository;
-    private readonly IBillRepository billRepository;
+    private readonly IAccountRepository accountRepository;
+    private readonly IMapper mapper;
 
-    public CreatePaymentCommandHandler(IPaymentRepository paymentRepository, IBillRepository billRepository)
+    public CreatePaymentCommandHandler(IPaymentRepository paymentRepository, IAccountRepository accountRepository, IMapper mapper)
     {
         this.paymentRepository = paymentRepository;
-        this.billRepository = billRepository;
+        this.accountRepository = accountRepository;
+        this.mapper = mapper;
     }
 
     public async Task<CreatePaymentModel> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
-        var newPayment = new Dal.Models.Payments.Payment
+        using var transactionScope = TransactionUtils.CreateTransactionScope(IsolationLevel.RepeatableRead);
+
+        var payment = mapper.Map<Dal.Models.Payments.Payment>(request);
+
+        if (request.AccountId != null)
         {
-            Title = request.Title,
-            Description = request.Description,
-            Amount = request.Amount,
-            Type = request.Type,
-            Date = DateTime.UtcNow,
-            BillId = request.BillId
-        };
+            var account = (await this.accountRepository.SearchAsync(AccountSearch.ById(request.AccountId.Value))).FirstOrDefault();
+            account.ApplyPayment(payment);
         
-        var gettingBillResult = await billRepository.SearchAsync(new BillSearch { Id = request.BillId });
-        gettingBillResult.EnsureSuccess();
-
-        var bill = gettingBillResult.Result.FirstOrDefault();
-
-        if (bill!.Balance < request.Amount)
-        {
-            throw new ForbiddenOperation("Insufficient funds to complete the transaction.");
+            (await this.accountRepository.UpdateAsync(account)).EnsureSuccess();
         }
         
-        var addedPaymentResult = await paymentRepository.AddAsync(newPayment);
-        addedPaymentResult.EnsureSuccess();
+        var paymentId = (await paymentRepository.AddAsync(payment)).GetValueOrThrow();
         
-        bill.Balance -= request.Amount;
-        
-        var updatedBillResult = await billRepository.UpdateAsync(bill);
-        updatedBillResult.EnsureSuccess();
+        transactionScope.Complete();
 
-        return new CreatePaymentModel { PaymentId = addedPaymentResult.Result };
+        return new CreatePaymentModel { PaymentId = paymentId };
     }
 }

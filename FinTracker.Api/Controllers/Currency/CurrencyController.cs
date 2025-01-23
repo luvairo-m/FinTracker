@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Currency.Dto.Requests;
 using FinTracker.Api.Controllers.Currency.Dto.Responses;
+using FinTracker.Api.Models;
 using FinTracker.Logic.Handlers.Currency.CreateCurrency;
-using FinTracker.Logic.Handlers.Currency.DeleteCurrency;
 using FinTracker.Logic.Handlers.Currency.GetCurrencies;
 using FinTracker.Logic.Handlers.Currency.GetCurrency;
+using FinTracker.Logic.Handlers.Currency.RemoveCurrency;
 using FinTracker.Logic.Handlers.Currency.UpdateCurrency;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -32,26 +34,24 @@ public class CurrencyController : ControllerBase
     /// Добавить валюту
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreateCurrencyResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateCurrency([FromBody] CreateCurrencyRequest createCurrencyRequest)
+    [ProducesResponseType(typeof(CreateCurrencyResponse), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> CreateCurrency([FromRoute] string version, [FromBody] CreateCurrencyRequest createCurrencyRequest)
     {
-        var createdCurrency = await mediator.Send(new CreateCurrencyCommand(
-            title: createCurrencyRequest.Title,
-            sign: createCurrencyRequest.Sign));
+        var createdCurrency = await mediator.Send(mapper.Map<CreateCurrencyCommand>(createCurrencyRequest));
 
         var response = mapper.Map<CreateCurrencyResponse>(createdCurrency);
 
-        return Ok(response);
+        return CreatedAtAction(nameof(GetCurrency), new { version, id = response.CurrencyId }, response);
     }
 
     /// <summary>
     /// Получить информацию о валюте
     /// </summary>
-    [HttpGet("{currencyId:guid}")]
-    [ProducesResponseType<GetCurrencyResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCurrency(Guid currencyId)
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(GetCurrencyResponse), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetCurrency(Guid id)
     {
-        var currency = await mediator.Send(new GetCurrencyCommand(currencyId: currencyId));
+        var currency = await mediator.Send(mapper.Map<GetCurrencyCommand>(id));
 
         var response = mapper.Map<GetCurrencyResponse>(currency);
 
@@ -62,27 +62,23 @@ public class CurrencyController : ControllerBase
     /// Получить список валют
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<GetCurrenciesResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetCurrencies()
+    [ProducesResponseType(typeof(ItemsResponse<GetCurrencyResponse>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetCurrencies([FromQuery] GetCurrenciesRequest getCurrenciesRequest)
     {
-        var currencies = await mediator.Send(new GetCurrenciesCommand());
+        var currencies = await mediator.Send(mapper.Map<GetCurrenciesCommand>(getCurrenciesRequest));
+        var items = new ItemsResponse<GetCurrencyResponse>(mapper.Map<ICollection<GetCurrencyResponse>>(currencies));
 
-        var response = mapper.Map<GetCurrenciesResponse>(currencies);
-
-        return Ok(response);
+        return Ok(items);
     }
 
     /// <summary>
     /// Обновить информацию о валюте
     /// </summary>
-    [HttpPut("{currencyId:guid}")]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateCurrency(Guid currencyId, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
+    public async Task<IActionResult> UpdateCurrency(Guid id, [FromBody] UpdateCurrencyRequest updateCurrencyRequest)
     {
-        await mediator.Send(new UpdateCurrencyCommand(
-            id: currencyId,
-            title: updateCurrencyRequest.Title,
-            sign: updateCurrencyRequest.Sign));
+        await mediator.Send(mapper.Map<UpdateCurrencyCommand>((id, updateCurrencyRequest)));
 
         return Ok();
     }
@@ -90,11 +86,11 @@ public class CurrencyController : ControllerBase
     /// <summary>
     /// Удалить валюту
     /// </summary>
-    [HttpDelete("{currencyId:guid}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> DeleteCurrency(Guid currencyId)
+    public async Task<IActionResult> RemoveCurrency(Guid id)
     {
-        await mediator.Send(new DeleteCurrencyCommand(currencyId: currencyId));
+        await mediator.Send(mapper.Map<RemoveCurrencyCommand>(id));
 
         return Ok();
     }

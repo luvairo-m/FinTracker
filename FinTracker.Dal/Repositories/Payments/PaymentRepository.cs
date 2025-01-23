@@ -26,14 +26,19 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
     public override async Task<DbQueryResult<Guid>> AddAsync(Payment model, TimeSpan? timeout = null)
     {
         var insertParameters = model.ToParametersWithValues();
-        var (categoryInsertScript, categoryParameters) = CreateCategoriesInsertScript(model.Categories);
+        var (categoryInsertScript, categoryParameters) = model.Categories?.Count > 0
+            ? CreateCategoriesInsertScript(model.Categories)
+            : (null, null);
 
         // Параметр @Id уже определен в sql-скрипте.
         insertParameters.Remove("Id");
-        
-        foreach (var (paramName, paramValue) in categoryParameters)
+
+        if (categoryParameters != null)
         {
-            insertParameters.Add(paramName, paramValue);
+            foreach (var (paramName, paramValue) in categoryParameters)
+            {
+                insertParameters.Add(paramName, paramValue);
+            }
         }
         
         var insertScript = $@"DECLARE @Id uniqueidentifier;
@@ -44,9 +49,9 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
                               VALUES (@Id, {typeof(Payment).GetParameterNames(withKeys: false).AsCommaSeparated()})
                               
                               {categoryInsertScript}";
-        
-        using var connection = await this.connectionFactory.CreateAsync();
-        using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
+        await using var connection = await this.connectionFactory.CreateAsync();
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
         
         try
         {
@@ -59,7 +64,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
                     transaction: transaction,
                     commandTimeout: GetTimeoutSeconds(timeout)));
 
-            transaction.Commit();
+            await transaction.CommitAsync();
 
             this.log.Info("New Payment (Id: {1}) successfully added!", entityId);
             
@@ -70,7 +75,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
             const string errorMessage = "Error while adding new Payment to database.";
             this.log.Error(sqlException, errorMessage);
             
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             
             return DbQueryResult<Guid>.Error(errorMessage);
         }
@@ -86,8 +91,8 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         var selectParameters = search.ToParametersWithValues();
         
         selectParameters.Add("CategoryIds", search.Categories);
-    
-        using var connection = await this.connectionFactory.CreateAsync();
+
+        await using var connection = await this.connectionFactory.CreateAsync();
                 
         try
         { 
@@ -157,9 +162,9 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
             ? @"DELETE FROM [dbo].PaymentCategory
                 WHERE PaymentId = @Id AND CategoryId IN @RemoveCategories"
             : string.Empty;
-        
-        using var connection = await this.connectionFactory.CreateAsync();
-        using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
+        await using var connection = await this.connectionFactory.CreateAsync();
+        await using var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
         
         try
         {
@@ -172,7 +177,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
                     transaction: transaction,
                     commandTimeout: GetTimeoutSeconds(timeout)));
             
-            transaction.Commit();
+            await transaction.CommitAsync();
 
             this.log.Info("Payment's (Id: {0}) categories were successfully updated!",  paymentId);
             
@@ -183,7 +188,7 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
             const string errorMessage = "Error while updating categories.";
             this.log.Error(sqlException, errorMessage);
             
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             
             return DbQueryResult.Error(errorMessage);
         }
@@ -217,11 +222,8 @@ public class PaymentRepository : RepositoryBase<Payment, PaymentSearch>, IPaymen
         var parameters = new Dictionary<string, object>(categoryIds.Count);
         
         var index = 0;
-
-        if (categoryIds.Count > 0)
-        {
-            scriptBuilder.AppendLine("INSERT INTO [dbo].PaymentCategory (PaymentId, CategoryId) VALUES");
-        }
+        
+        scriptBuilder.AppendLine("INSERT INTO [dbo].PaymentCategory (PaymentId, CategoryId) VALUES");
         
         foreach (var id in categoryIds)
         {

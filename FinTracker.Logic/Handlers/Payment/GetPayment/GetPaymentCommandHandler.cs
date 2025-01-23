@@ -6,6 +6,7 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Payment.GetPayment;
 
+// ReSharper disable once UnusedType.Global
 internal class GetPaymentCommandHandler : IRequestHandler<GetPaymentCommand, GetPaymentModel>
 {
     private readonly IPaymentRepository paymentRepository;
@@ -19,7 +20,7 @@ internal class GetPaymentCommandHandler : IRequestHandler<GetPaymentCommand, Get
 
     public async Task<GetPaymentModel> Handle(GetPaymentCommand request, CancellationToken cancellationToken)
     {
-        var gettingPaymentsResult = await paymentRepository.SearchAsync(new PaymentSearch { Id = request.PaymentId });
+        var gettingPaymentsResult = await paymentRepository.SearchAsync(mapper.Map<PaymentSearch>(request));
         gettingPaymentsResult.EnsureSuccess();
         
         var payment = gettingPaymentsResult.Result.FirstOrDefault();

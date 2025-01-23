@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System.Data.Common;
 using Microsoft.Data.SqlClient;
 
 namespace FinTracker.Dal.Logic.Connections;
@@ -12,7 +12,7 @@ public class SqlConnectionFactory : ISqlConnectionFactory
         this.connectionString = connectionString;
     }
     
-    public async Task<IDbConnection> CreateAsync(bool opened = true)
+    public async Task<DbConnection> CreateAsync(bool opened = true)
     {
         var connection = new SqlConnection(this.connectionString);
 

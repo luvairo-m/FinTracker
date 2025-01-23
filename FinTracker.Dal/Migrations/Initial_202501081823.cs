@@ -22,7 +22,7 @@ public class Initial_202501081823 : Migration
             .WithColumn("Sign").AsString(6).NotNullable();
         
         Create
-            .Table("Bill").InSchema("dbo")
+            .Table("Account").InSchema("dbo")
             .WithColumn("Id").AsGuid().PrimaryKey().NotNullable()
             .WithColumn("Title").AsString(128).Unique().NotNullable()
             .WithColumn("Balance").AsCurrency().NotNullable()
@@ -37,12 +37,12 @@ public class Initial_202501081823 : Migration
             .WithColumn("Amount").AsCurrency().NotNullable()
             .WithColumn("Type").AsInt16().NotNullable()
             .WithColumn("Date").AsDate().NotNullable()
-            .WithColumn("BillId").AsGuid().ForeignKey("Bill", "Id").OnDelete(Rule.SetNull).Nullable();
+            .WithColumn("AccountId").AsGuid().ForeignKey("Account", "Id").OnDelete(Rule.SetNull).Nullable();
 
         Create
             .Table("PaymentCategory").InSchema("dbo")
-            .WithColumn("PaymentId").AsGuid().NotNullable()
-            .WithColumn("CategoryId").AsGuid().NotNullable();
+            .WithColumn("PaymentId").AsGuid().ForeignKey("Payment", "Id").OnDelete(Rule.Cascade).NotNullable()
+            .WithColumn("CategoryId").AsGuid().ForeignKey("Category", "Id").OnDelete(Rule.Cascade).NotNullable();
 
         Create
             .PrimaryKey()
@@ -63,7 +63,7 @@ public class Initial_202501081823 : Migration
             .Row(new { Id = rubleId, Title = "Российский рубль", Sign = "₽" });
 
         Insert
-            .IntoTable("Bill").InSchema("dbo")
+            .IntoTable("Account").InSchema("dbo")
             .Row(new { Id = Guid.NewGuid(), Title = "Т-Банк", Balance = 15_000, CurrencyId = rubleId });
     }
 
@@ -72,7 +72,7 @@ public class Initial_202501081823 : Migration
         Delete.Table("PaymentCategory").IfExists().InSchema("dbo");
         Delete.Table("Category").IfExists().InSchema("dbo");
         Delete.Table("Payment").IfExists().InSchema("dbo");
-        Delete.Table("Bill").IfExists().InSchema("dbo");
+        Delete.Table("Account").IfExists().InSchema("dbo");
         Delete.Table("Currency").IfExists().InSchema("dbo");
     }
 }

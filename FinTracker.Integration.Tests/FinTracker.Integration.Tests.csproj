@@ -21,19 +21,10 @@
     </ItemGroup>
   
     <ItemGroup>
-      <None Update="Scripts\Bills\Drop\v1.0\script.sql">
+      <None Update="Scripts\Account\Create\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Scripts\Payment\Create\v1.0\script.sql">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\Payment\Drop\v1.0\script.sql">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\Currency\Create\v1.0\script.sql">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\Currency\Drop\v1.0\script.sql">
+      <None Update="Scripts\Account\Drop\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Scripts\Category\Create\v1.0\script.sql">
@@ -42,10 +33,16 @@
       <None Update="Scripts\Category\Drop\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Scripts\Bill\Create\v1.0\script.sql">
+      <None Update="Scripts\Currency\Create\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Scripts\Bill\Drop\v1.0\script.sql">
+      <None Update="Scripts\Currency\Drop\v1.0\script.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\Payment\Create\v1.0\script.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\Payment\Drop\v1.0\script.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using FinTracker.Api.Controllers.Payment.Dto.Requests;
 using FinTracker.Api.Controllers.Payment.Dto.Responses;
+using FinTracker.Api.Models;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
-using FinTracker.Logic.Handlers.Payment.DeletePayment;
+using FinTracker.Logic.Handlers.Payment.GetPayment;
 using FinTracker.Logic.Handlers.Payment.GetPayments;
+using FinTracker.Logic.Handlers.Payment.RemovePayment;
 using FinTracker.Logic.Handlers.Payment.UpdatePayment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,59 +34,51 @@ public class PaymentController : ControllerBase
     /// Добавить платёж
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<CreatePaymentResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest createPaymentRequest)
+    [ProducesResponseType(typeof(CreatePaymentResponse), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> CreatePayment([FromRoute] string version, [FromBody] CreatePaymentRequest createPaymentRequest)
     {
-        var createdPayment = await mediator.Send(new CreatePaymentCommand(
-            title: createPaymentRequest.Title,
-            description: createPaymentRequest.Description,
-            amount: createPaymentRequest.Amount,
-            billId: createPaymentRequest.BillId,
-            categoryId:createPaymentRequest.CategoryId,
-            type: createPaymentRequest.Type));
+        var createdPayment = await mediator.Send(mapper.Map<CreatePaymentCommand>(createPaymentRequest));
         
         var response = mapper.Map<CreatePaymentResponse>(createdPayment);
         
-        return Ok(response);
+        return CreatedAtAction(nameof(GetPayment), new { version, id = response.PaymentId }, response);
     }
 
     /// <summary>
-    /// Получить информацию о совершенных платежах
+    /// Получить информацию о совершенном платеже
     /// </summary>
-    [HttpGet]
-    [ProducesResponseType<GetPaymentsResponse>((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
+    [HttpGet("{id::guid}")]
+    [ProducesResponseType(typeof(GetPaymentResponse), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetPayment([FromRoute] Guid id)
     {
-        var payments = await mediator.Send(new GetPaymentsCommand(
-            id: request.Id,
-            minAmount: request.MinAmount,
-            maxAmount: request.MaxAmount,
-            types: request.Types,
-            minDate: request.MinDate,
-            maxDate: request.MaxDate,
-            months: request.Months,
-            years: request.Years,
-            billId: request.BillId));
+        var payment = await mediator.Send(mapper.Map<GetPaymentCommand>(id));
         
-        var response = mapper.Map<GetPaymentsResponse>(payments);
+        var response = mapper.Map<GetPaymentResponse>(payment);
 
         return Ok(response);
+    }
+    
+    /// <summary>
+    /// Получить платежи
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(ItemsResponse<GetPaymentResponse>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetPayments([FromQuery] GetPaymentsRequest request)
+    {
+        var payments = await mediator.Send(mapper.Map<GetPaymentsCommand>(request));
+        var items = new ItemsResponse<GetPaymentResponse>(mapper.Map<ICollection<GetPaymentResponse>>(payments));
+
+        return Ok(items);
     }
 
     /// <summary>
     /// Изменить информацию о платеже
     /// </summary>
-    [HttpPut("{paymentId::guid}")]
+    [HttpPatch("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdatePayment(Guid paymentId, [FromBody] UpdatePaymentRequest updatePaymentRequest)
+    public async Task<IActionResult> UpdatePayment(Guid id, [FromBody] UpdatePaymentRequest updatePaymentRequest)
     {
-        await mediator.Send(new UpdatePaymentCommand(
-            id: paymentId,
-            title: updatePaymentRequest.Title,
-            description: updatePaymentRequest.Description,
-            amount: updatePaymentRequest.Amount,
-            billId: updatePaymentRequest.BillId,
-            type: updatePaymentRequest.Type));
+        await mediator.Send(mapper.Map<UpdatePaymentCommand>((id, updatePaymentRequest)));
         
         return Ok();
     }
@@ -91,11 +86,11 @@ public class PaymentController : ControllerBase
     /// <summary>
     /// Удалить платёж
     /// </summary>
-    [HttpDelete("{paymentId::guid}")]
+    [HttpDelete("{id::guid}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> DeletePayment(Guid paymentId)
+    public async Task<IActionResult> RemovePayment(Guid id)
     {
-        await mediator.Send(new DeletePaymentCommand(paymentId: paymentId));
+        await mediator.Send(mapper.Map<RemovePaymentCommand>(id));
 
         return Ok();
     }

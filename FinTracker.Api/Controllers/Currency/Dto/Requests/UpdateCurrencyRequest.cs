@@ -4,11 +4,9 @@ namespace FinTracker.Api.Controllers.Currency.Dto.Requests;
 
 public class UpdateCurrencyRequest
 {
-    [Required]
-    [MaxLength(128)]
+    [MaxLength(64)]
     public string Title { get; init; }
 
-    [Required]
-    [MaxLength(10)]
+    [MaxLength(6)]
     public string Sign { get; init; }
 }

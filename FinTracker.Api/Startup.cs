@@ -4,6 +4,7 @@ using FinTracker.Api.Configuration.Swagger;
 using FinTracker.Api.Controllers.Category.Mappers;
 using FinTracker.Dal.Migrations;
 using FinTracker.Dal;
+using FinTracker.Logic.Extensions;
 using FinTracker.Logic.Handlers.Payment.CreatePayment;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Builder;
@@ -40,13 +41,18 @@ public class Startup
                     .AddSqlServer()
                     .WithGlobalConnectionString(Configuration.GetConnectionString("FinTracker"))
                     .ScanIn(typeof(Initial_202501081823).Assembly).For.Migrations());
-
-        services.AddAutoMapper(typeof(CategoryMapper));
+        
+        services.AddAutoMapper(
+            cfg => cfg.AllowNullCollections = true,
+            typeof(CategoryMapper),
+            typeof(Logic.Mappers.Category.CategoryMapper));
         
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly));
         
         services.AddSwaggerDocumentation();
 
+        services.AddLogic();
+        
         services.AddDal();
         
         services.AddSingleton<ILog>(new ConsoleLog());
@@ -61,10 +67,9 @@ public class Startup
             app.UseSwaggerDocumentation();
         }
 
-        app.UseRouting();
-
         app.UseMiddleware<ErrorHandlingMiddleware>();
-        
+
+        app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());
     }
 }

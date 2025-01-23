@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FinTracker.Dal.Logic;
 using FinTracker.Dal.Models.Currencies;
 using FinTracker.Dal.Repositories.Currencies;
 using FinTracker.Logic.Models.Currency;
@@ -6,7 +7,8 @@ using MediatR;
 
 namespace FinTracker.Logic.Handlers.Currency.GetCurrencies;
 
-public class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand, GetCurrenciesModel>
+// ReSharper disable once UnusedType.Global
+internal class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand, ICollection<GetCurrencyModel>>
 {
     private readonly ICurrencyRepository currencyRepository;
     private readonly IMapper mapper;
@@ -17,14 +19,17 @@ public class GetCurrenciesCommandHandler : IRequestHandler<GetCurrenciesCommand,
         this.mapper = mapper;
     }
 
-    public async Task<GetCurrenciesModel> Handle(GetCurrenciesCommand request, CancellationToken cancellationToken)
+    public async Task<ICollection<GetCurrencyModel>> Handle(GetCurrenciesCommand request, CancellationToken cancellationToken)
     {
-        var gettingCategoriesResult = await currencyRepository.SearchAsync(new CurrencySearch());
-        gettingCategoriesResult.EnsureSuccess();
+        var getResult = await currencyRepository.SearchAsync(mapper.Map<CurrencySearch>(request));
 
-        return new GetCurrenciesModel
+        if (getResult.Status == DbQueryResultStatus.NotFound)
         {
-            Currencies = mapper.Map<ICollection<GetCurrencyModel>>(gettingCategoriesResult.Result)
-        };
+            return Array.Empty<GetCurrencyModel>();
+        }
+        
+        getResult.EnsureSuccess();
+
+        return mapper.Map<ICollection<GetCurrencyModel>>(getResult.Result);
     }
 }
